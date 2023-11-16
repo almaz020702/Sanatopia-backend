@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int         @id @default(autoincrement())
+  email       String      @unique @db.VarChar()
+  password    String      @db.VarChar()
+  firstName   String      @db.VarChar()
+  lastName    String      @db.VarChar()
+  phoneNumber String      @db.VarChar()
+  bookings    Booking[]
+  UserRoles   UserRoles[]
+  Property    Property[]
+}
+
+model Role {
+  id    Int         @id @default(autoincrement())
+  name  String      @unique @db.VarChar()
+  users UserRoles[]
+}
+
+model UserRoles {
+  userId Int
+  roleId Int
+  User   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model Booking {
+  id                 Int                  @id @default(autoincrement())
+  userId             Int
+  propertyId         Int
+  checkIn            DateTime
+  checkOut           DateTime
+  guests             Int
+  totalPrice         Float
+  status             String               @db.VarChar()
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  property           Property             @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  propertyServices   PropertyServices[]
+  propertyTreatments PropertyTreatments[]
+}
+
+model Property {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @db.VarChar()
+  address            String               @db.VarChar()
+  postalCode         String
+  description        String
+  ownerId            Int
+  propertyType       String               @db.VarChar()
+  rating             Float                @default(0)
+  contactName        String               @db.VarChar()
+  contactPhone       String               @db.VarChar()
+  status             String               @db.VarChar()
+  Owner              User                 @relation(fields: [ownerId], references: [id])
+  Rooms              Room[]
+  PropertyPhotos     PropertyPhoto[]
+  Bookings           Booking[]
+  PropertyServices   PropertyServices[]
+  PropertyTreatments PropertyTreatments[]
+}
+
+model Photo {
+  id            Int             @id @default(autoincrement())
+  url           String
+  PropertyPhoto PropertyPhoto[]
+}
+
+model Facility {
+  id             Int            @id @default(autoincrement())
+  name           String         @db.VarChar()
+  RoomFacilities RoomFacility[]
+}
+
+model Room {
+  id             Int            @id @default(autoincrement())
+  name           String         @db.VarChar()
+  roomType       String         @db.VarChar()
+  propertyId     Int
+  surfaceArea    Float
+  pricePerDay    Float
+  quantity       Int
+  capacity       Int
+  RoomFacilities RoomFacility[]
+  Property       Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model RoomFacility {
+  id         Int      @id @default(autoincrement())
+  roomId     Int
+  facilityId Int
+  Room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model PropertyPhoto {
+  id         Int      @id @default(autoincrement())
+  propertyId Int
+  photoId    Int
+  Property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Photo      Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model PropertyServices {
+  id         Int      @id @default(autoincrement())
+  propertyId Int
+  serviceId  Int
+  price      Float
+  bookingId  Int?
+  Property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Service    Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Booking    Booking? @relation(fields: [bookingId], references: [id])
+}
+
+model PropertyTreatments {
+  id          Int       @id @default(autoincrement())
+  propertyId  Int
+  treatmentId Int
+  price       Float
+  bookingId   Int?
+  Property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Treatment   Treatment @relation(fields: [treatmentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Booking     Booking?  @relation(fields: [bookingId], references: [id])
+}
+
+model Service {
+  id               Int                @id @default(autoincrement())
+  name             String
+  PropertyServices PropertyServices[]
+}
+
+model Treatment {
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  PropertyTreatments PropertyTreatments[]
+}
