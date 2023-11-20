@@ -14,9 +14,9 @@ model User {
   id          Int         @id @default(autoincrement())
   email       String      @unique @db.VarChar()
   password    String      @db.VarChar()
-  firstName   String      @db.VarChar()
-  lastName    String      @db.VarChar()
-  phoneNumber String      @db.VarChar()
+  firstName   String?     @db.VarChar()
+  lastName    String?     @db.VarChar()
+  phoneNumber String?     @db.VarChar()
   bookings    Booking[]
   UserRoles   UserRoles[]
   Property    Property[]
