@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { TokenPair } from './interfaces/token-pair.interface';
 import { User } from '../user/interfaces/user.interface';
+import { AuthResponse } from './interfaces/auth-response.interface';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,10 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async registration(userData: CreateUserDto, res: Response) {
+  async registration(
+    userData: CreateUserDto,
+    res: Response,
+  ): Promise<AuthResponse> {
     const candidate = await this.prismaService.user.findUnique({
       where: {
         email: userData.email,
@@ -41,7 +45,6 @@ export class AuthService {
     return {
       message: 'User registration successful',
       user: {
-        id: user.id,
         email: user.email,
       },
       tokens,
@@ -71,7 +74,7 @@ export class AuthService {
     });
   }
 
-  async login(userData: CreateUserDto, res: Response) {
+  async login(userData: CreateUserDto, res: Response): Promise<AuthResponse> {
     const candidate = await this.prismaService.user.findUnique({
       where: { email: userData.email },
     });
@@ -96,7 +99,6 @@ export class AuthService {
     return {
       message: 'User login successful',
       user: {
-        id: candidate.id,
         email: candidate.email,
       },
       tokens,
