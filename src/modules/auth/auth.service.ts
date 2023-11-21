@@ -102,4 +102,14 @@ export class AuthService {
       tokens,
     };
   }
+
+  async logout(res: Response): Promise<{ message: string }> {
+    this.clearTokensInCookie(res);
+    return { message: 'User successfully logged out' };
+  }
+
+  private clearTokensInCookie(res: Response): void {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+  }
 }
