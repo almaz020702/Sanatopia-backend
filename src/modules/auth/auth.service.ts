@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { Response } from 'express';
@@ -23,10 +23,7 @@ export class AuthService {
   ): Promise<AuthResponse> {
     const candidate = await this.userService.findUserByEmail(userData.email);
     if (candidate) {
-      throw new HttpException(
-        'User with this email already exists',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('User with this email already exists');
     }
 
     const hashedPassword = await bcrypt.hash(userData.password, 5);
@@ -75,10 +72,7 @@ export class AuthService {
   async login(userData: CreateUserDto, res: Response): Promise<AuthResponse> {
     const candidate = await this.userService.findUserByEmail(userData.email);
     if (!candidate) {
-      throw new HttpException(
-        'User with this email does not exist',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('User with this email does not exist');
     }
 
     const comparePassword = bcrypt.compareSync(
@@ -86,7 +80,7 @@ export class AuthService {
       candidate.password,
     );
     if (!comparePassword) {
-      throw new HttpException('Incorrect password', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('Incorrect password');
     }
 
     const tokens = this.generateTokens(candidate);
