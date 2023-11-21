@@ -12,8 +12,16 @@ export class AuthController {
   @Post('/registration')
   async registration(
     @Res({ passthrough: true }) res: Response,
-    @Body() userDto: CreateUserDto,
+    @Body() userData: CreateUserDto,
   ) {
-    return this.authService.registration(userDto, res);
+    return this.authService.registration(userData, res);
+  }
+
+  @Post('/login')
+  async login(
+    @Res({ passthrough: true }) res: Response,
+    @Body() userData: CreateUserDto,
+  ) {
+    return this.authService.login(userData, res);
   }
 }

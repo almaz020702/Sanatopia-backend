@@ -5,6 +5,7 @@ import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { TokenPair } from './interfaces/token-pair.interface';
+import { User } from '../user/interfaces/user.interface';
 
 @Injectable()
 export class AuthService {
@@ -33,8 +34,10 @@ export class AuthService {
         password: hashedPassword,
       },
     });
+
     const tokens = this.generateTokens(user);
     this.sendTokensInCookie(tokens, res);
+
     return {
       message: 'User registration successful',
       user: {
@@ -45,9 +48,9 @@ export class AuthService {
     };
   }
 
-  private generateTokens(user): TokenPair {
+  private generateTokens(user: User): TokenPair {
     const accessToken = this.jwtService.sign({
-      id: user.user_id,
+      id: user.id,
       email: user.email,
     });
     const refreshToken = this.jwtService.sign({ email: user.email });
@@ -59,12 +62,44 @@ export class AuthService {
     res: Response,
   ): void {
     res.cookie('accessToken', tokens.accessToken, {
-      maxAge: 60 * 60 * 1000,
+      maxAge: 15 * 60 * 1000,
       httpOnly: true,
     });
     res.cookie('refreshToken', tokens.refreshToken, {
       maxAge: 60 * 60 * 1000 * 24,
       httpOnly: true,
     });
+  }
+
+  async login(userData: CreateUserDto, res: Response) {
+    const candidate = await this.prismaService.user.findUnique({
+      where: { email: userData.email },
+    });
+    if (!candidate) {
+      throw new HttpException(
+        'User with this email does not exist',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const comparePassword = bcrypt.compareSync(
+      userData.password,
+      candidate.password,
+    );
+    if (!comparePassword) {
+      throw new HttpException('Incorrect password', HttpStatus.BAD_REQUEST);
+    }
+
+    const tokens = this.generateTokens(candidate);
+    this.sendTokensInCookie(tokens, res);
+
+    return {
+      message: 'User login successful',
+      user: {
+        id: candidate.id,
+        email: candidate.email,
+      },
+      tokens,
+    };
   }
 }
