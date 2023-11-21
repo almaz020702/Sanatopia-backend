@@ -7,23 +7,21 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { TokenPair } from './interfaces/token-pair.interface';
 import { User } from '../user/interfaces/user.interface';
 import { AuthResponse } from './interfaces/auth-response.interface';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prismaService: PrismaService,
     private jwtService: JwtService,
+    private userService: UserService,
   ) {}
 
   async registration(
     userData: CreateUserDto,
     res: Response,
   ): Promise<AuthResponse> {
-    const candidate = await this.prismaService.user.findUnique({
-      where: {
-        email: userData.email,
-      },
-    });
+    const candidate = await this.userService.findUserByEmail(userData.email);
     if (candidate) {
       throw new HttpException(
         'User with this email already exists',
@@ -75,9 +73,7 @@ export class AuthService {
   }
 
   async login(userData: CreateUserDto, res: Response): Promise<AuthResponse> {
-    const candidate = await this.prismaService.user.findUnique({
-      where: { email: userData.email },
-    });
+    const candidate = await this.userService.findUserByEmail(userData.email);
     if (!candidate) {
       throw new HttpException(
         'User with this email does not exist',
