@@ -58,20 +58,31 @@ model Property {
   id                 Int                  @id @default(autoincrement())
   name               String               @db.VarChar()
   address            String               @db.VarChar()
-  postalCode         String
+  postalCode         String               @db.VarChar()
   description        String
   ownerId            Int
-  propertyType       String               @db.VarChar()
+  propertyType       PropertyType
   rating             Float                @default(0)
   contactName        String               @db.VarChar()
   contactPhone       String               @db.VarChar()
-  status             String               @db.VarChar()
+  status             SanatoriumStatus     @default(PENDING)
   Owner              User                 @relation(fields: [ownerId], references: [id])
   Rooms              Room[]
   PropertyPhotos     PropertyPhoto[]
   Bookings           Booking[]
   PropertyServices   PropertyServices[]
   PropertyTreatments PropertyTreatments[]
+}
+
+enum PropertyType {
+  SANATORIUM
+  HOTEL
+}
+
+enum SanatoriumStatus {
+  PENDING
+  ACTIVE
+  REJECTED
 }
 
 model Photo {
