@@ -104,4 +104,21 @@ export class AuthService {
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
   }
+
+  async refreshTokens(userId: number, res: Response): Promise<AuthResponse> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    const tokens = this.generateTokens(user);
+    this.sendTokensInCookie(tokens, res);
+
+    return {
+      message: 'Tokens were refreshed successfully',
+      user: {
+        email: user.email,
+      },
+      tokens,
+    };
+  }
 }
