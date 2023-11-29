@@ -1,16 +1,16 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import type { Request } from 'express';
-import _ from 'lodash';
 
 export const UserId = createParamDecorator(
   (_data: unknown, context: ExecutionContext) => {
     const request: Request = context.switchToHttp().getRequest<Request>();
-    const userId = <string | undefined>request.cookies.user_id;
+    const userId: number = request.user.id;
+    console.log(userId);
 
-    if (!userId || !_.isNumber(parseInt(userId, 10))) {
+    if (!userId) {
       return null;
     }
 
-    return parseInt(userId, 10);
+    return userId;
   },
 );
