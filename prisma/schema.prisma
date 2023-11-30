@@ -17,6 +17,7 @@ model User {
   firstName   String?     @db.VarChar()
   lastName    String?     @db.VarChar()
   phoneNumber String?     @db.VarChar()
+  isActivated Boolean     @default(false)
   bookings    Booking[]
   UserRoles   UserRoles[]
   Property    Property[]
