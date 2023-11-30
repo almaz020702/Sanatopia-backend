@@ -8,7 +8,7 @@ import {
   IsNumber,
 } from 'class-validator';
 import { PropertyType } from '../enums/property-type.enum';
-import { SanatoriumStatus } from '../enums/sanatorium-status.enum';
+import { PropertyStatus } from '../enums/property-status.enum';
 
 export class CreatePropertyDto {
   @ApiProperty()
@@ -46,9 +46,9 @@ export class CreatePropertyDto {
   @IsEnum(PropertyType)
   propertyType: PropertyType;
 
-  @ApiProperty({ enum: SanatoriumStatus, enumName: 'SanatoriumStatus' })
+  @ApiProperty({ enum: PropertyStatus, enumName: 'SanatoriumStatus' })
   @IsNotEmpty()
-  @IsEnum(SanatoriumStatus)
+  @IsEnum(PropertyStatus)
   @IsOptional()
-  status?: SanatoriumStatus;
+  status?: PropertyStatus;
 }
