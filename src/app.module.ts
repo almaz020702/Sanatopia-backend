@@ -10,6 +10,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { FacilitiesModule } from './modules/facilities/facilities.module';
+import { RoomModule } from './modules/room/room.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { UserModule } from './modules/user/user.module';
     }),
     AuthModule,
     UserModule,
+    FacilitiesModule,
+    RoomModule,
   ],
   controllers: [AppController],
   providers: [
