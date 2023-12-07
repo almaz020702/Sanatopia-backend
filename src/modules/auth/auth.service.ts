@@ -31,6 +31,20 @@ export class AuthService {
       data: {
         email: userData.email,
         password: hashedPassword,
+        UserRoles: {
+          create: {
+            Role: {
+              connectOrCreate: {
+                where: {
+                  name: 'USER',
+                },
+                create: {
+                  name: 'USER',
+                },
+              },
+            },
+          },
+        },
       },
     });
 
