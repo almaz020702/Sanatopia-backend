@@ -10,7 +10,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
-import { FacilitiesModule } from './modules/facilities/facilities.module';
+import { FacilityModule } from './modules/facility/facility.module';
 import { RoomModule } from './modules/room/room.module';
 
 @Module({
@@ -20,7 +20,7 @@ import { RoomModule } from './modules/room/room.module';
     }),
     AuthModule,
     UserModule,
-    FacilitiesModule,
+    FacilityModule,
     RoomModule,
   ],
   controllers: [AppController],

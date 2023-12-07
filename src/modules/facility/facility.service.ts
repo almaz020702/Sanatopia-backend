@@ -3,7 +3,7 @@ import { PrismaService } from 'src/common/prisma/prisma.service';
 import { Facility } from './interfaces/facilities.interface';
 
 @Injectable()
-export class FacilitiesService {
+export class FacilityService {
   constructor(private prismaService: PrismaService) {}
 
   getFacilities(): Promise<Facility[]> {
