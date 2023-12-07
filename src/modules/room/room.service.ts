@@ -56,18 +56,17 @@ export class RoomService {
   }
 
   private async createRoomFacilities(
-    facilities: number[],
+    facilitiesIds: number[],
     roomId: number,
     tx: Prisma.TransactionClient,
   ): Promise<void> {
-    Promise.all(
-      facilities.map(async (facility) =>
-        // eslint-disable-next-line implicit-arrow-linebreak
-        tx.roomFacility.create({
-          data: { roomId, facilityId: facility },
-        }),
-      ),
-    );
+    const roomFacilities = facilitiesIds.map((id) => ({
+      facilityId: id,
+      roomId,
+    }));
+    tx.roomFacility.createMany({
+      data: roomFacilities,
+    });
   }
 
   public async getAllRooms(): Promise<Room[]> {
