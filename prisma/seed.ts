@@ -6,6 +6,7 @@ import { PrismaClient } from '@prisma/client';
 const facilities = require('./fixtures/facilities.json');
 const services = require('./fixtures/services.json');
 const treatments = require('./fixtures/treatments.json');
+const roles = require('./fixtures/roles.json');
 
 const prisma = new PrismaClient();
 
@@ -34,10 +35,19 @@ async function main() {
     }),
   );
 
+  const rolesPromise = roles.map((role) =>
+    prisma.treatment.upsert({
+      where: { id: role.id },
+      update: {},
+      create: role,
+    }),
+  );
+
   await prisma.$transaction([
     ...facilitiesPromise,
     ...servicesPromise,
     ...treatmentsPromise,
+    ...rolesPromise,
   ]);
 }
 
