@@ -8,6 +8,7 @@ import { TokenPair } from './interfaces/token-pair.interface';
 import { User } from '../user/interfaces/user.interface';
 import { AuthResponse } from './interfaces/auth-response.interface';
 import { UserService } from '../user/user.service';
+import { EmailVerificationService } from '../email-verification/email-verification.service';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,7 @@ export class AuthService {
     private prismaService: PrismaService,
     private jwtService: JwtService,
     private userService: UserService,
+    private emailVerificationService: EmailVerificationService,
   ) {}
 
   async registration(
@@ -50,6 +52,16 @@ export class AuthService {
 
     const tokens = this.generateTokens(user);
     this.sendTokensInCookie(tokens, res);
+
+    // eslint-disable-next-line operator-linebreak
+    const activationToken =
+      await this.emailVerificationService.generateActivationToken(
+        userData.email,
+      );
+    await this.emailVerificationService.sendVerificationEmail(
+      user.email,
+      activationToken,
+    );
 
     return {
       message: 'User registration successful',

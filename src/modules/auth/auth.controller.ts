@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/indent */
 // eslint-disable-next-line object-curly-newline
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/common/decorators/user-id.decorator';
@@ -10,11 +18,15 @@ import { CreateUserDto } from './dto/create-user.dto';
 import type { AuthResponse } from './interfaces/auth-response.interface';
 import { AuthGuard } from './guards/auth.guard';
 import { RolesGuard } from './guards/roles.guard';
+import { EmailVerificationService } from '../email-verification/email-verification.service';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private emailVerificationService: EmailVerificationService,
+  ) {}
 
   @ApiOperation({ summary: 'User registration' })
   @ApiBody({ type: CreateUserDto })
@@ -55,5 +67,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.authService.refreshTokens(userId, res);
+  }
+
+  @ApiOperation({ summary: 'Account Activation' })
+  @Get('/activation/:activationToken')
+  async activateAccount(@Param('activationToken') activationToken: string) {
+    return this.emailVerificationService.activateAccount(activationToken);
   }
 }
