@@ -67,6 +67,7 @@ export class AuthService {
       message: 'User registration successful',
       user: {
         email: user.email,
+        id: user.id,
       },
       tokens,
     };
@@ -116,6 +117,7 @@ export class AuthService {
       message: 'User login successful',
       user: {
         email: candidate.email,
+        id: candidate.id,
       },
       tokens,
     };
@@ -143,6 +145,7 @@ export class AuthService {
       message: 'Tokens were refreshed successfully',
       user: {
         email: user.email,
+        id: user.id,
       },
       tokens,
     };
