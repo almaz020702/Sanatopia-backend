@@ -9,6 +9,7 @@ import { EmailVerificationModule } from '../email-verification/email-verificatio
 @Module({
   controllers: [AuthController],
   providers: [AuthService],
+  exports: [AuthService],
   imports: [
     PrismaModule,
     JwtModule.register({

@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { FacilityModule } from './modules/facility/facility.module';
 import { RoomModule } from './modules/room/room.module';
+import { OwnerModule } from './modules/owner/owner.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RoomModule } from './modules/room/room.module';
     UserModule,
     FacilityModule,
     RoomModule,
+    OwnerModule,
   ],
   controllers: [AppController],
   providers: [
