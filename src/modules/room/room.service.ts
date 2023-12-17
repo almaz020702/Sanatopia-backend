@@ -69,7 +69,7 @@ export class RoomService {
     });
   }
 
-  public async getAllRooms(): Promise<Room[]> {
-    return this.prismaService.room.findMany();
+  public async getAllRooms(propertyId: number): Promise<Room[]> {
+    return this.prismaService.room.findMany({ where: { propertyId } });
   }
 }
