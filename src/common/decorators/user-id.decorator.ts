@@ -5,7 +5,6 @@ export const UserId = createParamDecorator(
   (_data: unknown, context: ExecutionContext) => {
     const request: Request = context.switchToHttp().getRequest<Request>();
     const userId: number = request.user.id;
-    console.log(userId);
 
     if (!userId) {
       return null;

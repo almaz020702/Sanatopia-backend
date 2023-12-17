@@ -13,6 +13,7 @@ import { UserModule } from './modules/user/user.module';
 import { FacilityModule } from './modules/facility/facility.module';
 import { RoomModule } from './modules/room/room.module';
 import { OwnerModule } from './modules/owner/owner.module';
+import { PropertyModule } from './modules/property/property.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { OwnerModule } from './modules/owner/owner.module';
     FacilityModule,
     RoomModule,
     OwnerModule,
+    PropertyModule,
   ],
   controllers: [AppController],
   providers: [
