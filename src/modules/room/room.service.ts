@@ -4,36 +4,46 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Room } from '@prisma/client';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import { CreateRoomResponse } from './interfaces/create-room-response.interface';
+import {
+  CreateRoomResponse,
+  CreateRoomsResponse,
+} from './interfaces/create-room-response.interface';
 import { CreateRoomBodyDto } from './dto/create-room-body.dto';
 
 @Injectable()
 export class RoomService {
   constructor(private prismaService: PrismaService) {}
 
-  public async createHotelRooms(rooms: CreateRoomBodyDto[]): Promise<Room[]> {
-    return this.prismaService.$transaction(async (tx): Promise<Room[]> => {
-      const createdRooms = await Promise.all(
-        rooms.map(({ facilities, ...roomDetails }) =>
-          tx.room.create({
-            data: { ...roomDetails, surfaceArea: roomDetails.surfaceArea },
-          }),
-        ),
-      );
+  public async createHotelRooms(
+    rooms: CreateRoomBodyDto[],
+  ): Promise<CreateRoomsResponse> {
+    return this.prismaService.$transaction(
+      async (tx): Promise<CreateRoomsResponse> => {
+        const createdRooms = await Promise.all(
+          rooms.map(({ facilities, ...roomDetails }) =>
+            tx.room.create({
+              data: { ...roomDetails, surfaceArea: roomDetails.surfaceArea },
+            }),
+          ),
+        );
 
-      const facilitiesData = rooms.flatMap((room, index) =>
-        room.facilities.map((facilityId) => ({
-          roomId: createdRooms[index].id,
-          facilityId,
-        })),
-      );
+        const facilitiesData = rooms.flatMap((room, index) =>
+          room.facilities.map((facilityId) => ({
+            roomId: createdRooms[index].id,
+            facilityId,
+          })),
+        );
 
-      await tx.roomFacility.createMany({
-        data: facilitiesData,
-      });
+        await tx.roomFacility.createMany({
+          data: facilitiesData,
+        });
 
-      return createdRooms;
-    });
+        return {
+          message: 'You created rooms!',
+          roomIds: createdRooms.map((room) => room.id),
+        };
+      },
+    );
   }
 
   // below methods for the future use

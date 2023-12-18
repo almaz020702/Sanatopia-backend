@@ -16,7 +16,7 @@ export class PropertyService {
         where: { name: propertyData.name },
       })
     ) {
-      throw new BadRequestException(' property with such name alrady exists');
+      throw new BadRequestException(' property with such name already exists');
     }
     const property = await this.prismaService.property.create({
       data: { ...propertyData, ownerId },
