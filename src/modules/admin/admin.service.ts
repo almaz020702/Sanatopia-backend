@@ -11,6 +11,8 @@ export class AdminService {
     if (role) {
       throw new BadRequestException(`Role: ${role.name} already exists`);
     }
-    return this.prismaService.role.create({ data: { name } });
+    await this.prismaService.role.create({
+      data: { name },
+    });
   }
 }
