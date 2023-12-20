@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { Response } from 'express';
 import { UserRoleType } from '../user/enums/user-role.enum';
@@ -18,11 +18,12 @@ export class OwnerService {
     res: Response,
   ): Promise<AuthResponse> {
     const user = await this.authService.registration(userData, res);
-    const role = await this.prismaService.role.upsert({
+    const role = await this.prismaService.role.findUnique({
       where: { name: UserRoleType.PROPERTY_OWNER },
-      update: {},
-      create: { name: UserRoleType.PROPERTY_OWNER },
     });
+    if (!role) {
+      throw new BadRequestException('Owner was not found');
+    }
     await this.prismaService.userRoles.create({
       data: { userId: user.user.id, roleId: role.id },
     });
