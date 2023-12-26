@@ -39,8 +39,6 @@ export class EmailVerificationService {
   async generateActivationToken(email: string): Promise<string> {
     const token = this.jwtService.sign({ email });
 
-    console.log(this.decodeActivationToken(token));
-
     return token;
   }
 

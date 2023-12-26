@@ -66,7 +66,7 @@ model Property {
   rating             Float                @default(0)
   contactName        String               @db.VarChar()
   contactPhone       String               @db.VarChar()
-  status             SanatoriumStatus?    @default(PENDING)
+  status             PropertyStatus?    @default(PENDING)
   Owner              User                 @relation(fields: [ownerId], references: [id])
   Rooms              Room[]
   PropertyPhotos     PropertyPhoto[]
@@ -80,7 +80,7 @@ enum PropertyType {
   HOTEL
 }
 
-enum SanatoriumStatus {
+enum PropertyStatus {
   PENDING
   ACTIVE
   REJECTED
