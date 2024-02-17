@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+/* eslint-disable operator-linebreak */
+/* eslint-disable prettier/prettier */
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { Response } from 'express';
@@ -149,5 +155,60 @@ export class AuthService {
       },
       tokens,
     };
+  }
+
+  async sendResetPasswordEmail(email: string): Promise<boolean> {
+    return this.emailVerificationService.sendForgotPasswordEmail(email);
+  }
+
+  async validateResetToken(token: string): Promise<boolean> {
+    try {
+      const decoded = this.jwtService.decode(token);
+
+      const verification = this.jwtService.verify(token, {
+        secret: process.env.JWT_RESET_PASSWORD_SECRET,
+      });
+
+      if (decoded && decoded.email && verification) {
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async renderResetPasswordPage(token: string): Promise<boolean> {
+    const isValidToken = await this.validateResetToken(token);
+
+    if (!isValidToken) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async resetPassword(
+    resetToken: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    const isValidToken = await this.validateResetToken(resetToken);
+    if (!isValidToken) {
+      throw new NotFoundException('Invalid or expired token');
+    }
+
+    const decoded = this.jwtService.decode(resetToken);
+
+    const hashedPassword = await bcrypt.hash(newPassword, 5);
+
+    await this.prismaService.user.update({
+      where: { email: decoded.email },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    return { message: 'Password was successfully updated' };
   }
 }

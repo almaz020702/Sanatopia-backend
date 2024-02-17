@@ -71,4 +71,33 @@ export class EmailVerificationService {
 
     return activatedUser;
   }
+
+  async sendForgotPasswordEmail(to: string): Promise<boolean> {
+    try {
+      const resetToken = await this.generateResetPasswordToken(to);
+      const mailOptions = {
+        from: process.env.SMTP_USER,
+        to,
+        subject: 'Reset Password',
+        html: `Click the following link to reset the password: <a href="${process.env.API_URL}/auth/reset-password/${resetToken}">Reset Password</a>`,
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async generateResetPasswordToken(email: string): Promise<string> {
+    const token = this.jwtService.sign(
+      { email },
+      {
+        secret: process.env.JWT_RESET_PASSWORD_SECRET,
+        expiresIn: `${process.env.JWT_RESET_PASSWORD_TTL_IN_MINUTES}m`,
+      },
+    );
+
+    return token;
+  }
 }

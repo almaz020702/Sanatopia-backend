@@ -19,6 +19,8 @@ import type { AuthResponse } from './interfaces/auth-response.interface';
 import { AuthGuard } from './guards/auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { EmailVerificationService } from '../email-verification/email-verification.service';
+import { GetUserEmailDto } from './dto/user-email.dto';
+import { NewPasswordDto } from './dto/new-password.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -73,5 +75,27 @@ export class AuthController {
   @Get('/activation/:activationToken')
   async activateAccount(@Param('activationToken') activationToken: string) {
     return this.emailVerificationService.activateAccount(activationToken);
+  }
+
+  @Post('/reset-password')
+  async sendResetPasswordEmail(
+    @Body() userData: GetUserEmailDto,
+  ): Promise<boolean> {
+    return this.authService.sendResetPasswordEmail(userData.email);
+  }
+
+  @Get('reset-password/:token')
+  async renderResetPasswordPage(
+    @Param('token') token: string,
+  ): Promise<boolean> {
+    return this.authService.renderResetPasswordPage(token);
+  }
+
+  @Post('reset-password/:token')
+  async resetPassword(
+    @Param('token') token: string,
+    @Body() passwordData: NewPasswordDto,
+  ): Promise<{ message: string }> {
+    return this.authService.resetPassword(token, passwordData.password);
   }
 }
