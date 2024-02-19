@@ -66,7 +66,7 @@ model Property {
   rating             Float                @default(0)
   contactName        String               @db.VarChar()
   contactPhone       String               @db.VarChar()
-  status             PropertyStatus?    @default(PENDING)
+  status             PropertyStatus       @default(PENDING)
   Owner              User                 @relation(fields: [ownerId], references: [id])
   Rooms              Room[]
   PropertyPhotos     PropertyPhoto[]
