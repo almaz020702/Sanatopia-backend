@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import * as nodemailer from 'nodemailer';
+import { EMAIL_BODY, EMAIL_SUBJECT } from './email.constants';
 
 @Injectable()
 export class EmailVerificationService {
@@ -29,8 +30,8 @@ export class EmailVerificationService {
     const mailOptions = {
       from: process.env.SMTP_USER,
       to,
-      subject: 'Account Verification',
-      html: `Click the following link to verify your account: <a href="${process.env.API_URL}/auth/activation/${verificationToken}">Verify Account</a>`,
+      subject: EMAIL_SUBJECT.SUBJECT_VERIFICATION,
+      html: EMAIL_BODY.BODY_VERIFICATION(verificationToken),
     };
 
     await this.transporter.sendMail(mailOptions);
@@ -78,8 +79,8 @@ export class EmailVerificationService {
       const mailOptions = {
         from: process.env.SMTP_USER,
         to,
-        subject: 'Reset Password',
-        html: `Click the following link to reset the password: <a href="${process.env.API_URL}/auth/reset-password/${resetToken}">Reset Password</a>`,
+        subject: EMAIL_SUBJECT.SUBJECT_RESET_PASSWORD,
+        html: EMAIL_BODY.BODY_RESET_PASSWORD(resetToken),
       };
 
       await this.transporter.sendMail(mailOptions);
