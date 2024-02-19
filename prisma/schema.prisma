@@ -19,21 +19,21 @@ model User {
   phoneNumber String?     @db.VarChar()
   isActivated Boolean     @default(false)
   bookings    Booking[]
-  UserRoles   UserRoles[]
-  Property    Property[]
+  userRoles   UserRoles[]
+  properties  Property[]
 }
 
 model Role {
-  id    Int         @id @default(autoincrement())
-  name  String      @unique @db.VarChar()
-  users UserRoles[]
+  id        Int         @id @default(autoincrement())
+  name      String      @unique @db.VarChar()
+  userRoles UserRoles[]
 }
 
 model UserRoles {
   userId Int
   roleId Int
-  User   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([userId, roleId])
 }
@@ -67,12 +67,12 @@ model Property {
   contactName        String               @db.VarChar()
   contactPhone       String               @db.VarChar()
   status             PropertyStatus       @default(PENDING)
-  Owner              User                 @relation(fields: [ownerId], references: [id])
-  Rooms              Room[]
-  PropertyPhotos     PropertyPhoto[]
-  Bookings           Booking[]
-  PropertyServices   PropertyServices[]
-  PropertyTreatments PropertyTreatments[]
+  owner              User                 @relation(fields: [ownerId], references: [id])
+  rooms              Room[]
+  propertyPhotos     PropertyPhoto[]
+  bookings           Booking[]
+  propertyServices   PropertyServices[]
+  propertyTreatments PropertyTreatments[]
 }
 
 enum PropertyType {
@@ -87,15 +87,15 @@ enum PropertyStatus {
 }
 
 model Photo {
-  id            Int             @id @default(autoincrement())
-  url           String
-  PropertyPhoto PropertyPhoto[]
+  id             Int             @id @default(autoincrement())
+  url            String
+  propertyPhotos PropertyPhoto[]
 }
 
 model Facility {
   id             Int            @id @default(autoincrement())
   name           String         @db.VarChar()
-  RoomFacilities RoomFacility[]
+  roomFacilities RoomFacility[]
 }
 
 model Room {
@@ -107,24 +107,24 @@ model Room {
   pricePerDay    Float
   quantity       Int
   capacity       Int
-  RoomFacilities RoomFacility[]
-  Property       Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  roomFacilities RoomFacility[]
+  property       Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model RoomFacility {
   id         Int      @id @default(autoincrement())
   roomId     Int
   facilityId Int
-  Room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model PropertyPhoto {
   id         Int      @id @default(autoincrement())
   propertyId Int
   photoId    Int
-  Property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Photo      Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  photo      Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model PropertyServices {
@@ -133,9 +133,9 @@ model PropertyServices {
   serviceId  Int
   price      Float
   bookingId  Int?
-  Property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Service    Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Booking    Booking? @relation(fields: [bookingId], references: [id])
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  service    Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  booking    Booking? @relation(fields: [bookingId], references: [id])
 }
 
 model PropertyTreatments {
@@ -144,19 +144,19 @@ model PropertyTreatments {
   treatmentId Int
   price       Float
   bookingId   Int?
-  Property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Treatment   Treatment @relation(fields: [treatmentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Booking     Booking?  @relation(fields: [bookingId], references: [id])
+  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  treatment   Treatment @relation(fields: [treatmentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  booking     Booking?  @relation(fields: [bookingId], references: [id])
 }
 
 model Service {
   id               Int                @id @default(autoincrement())
   name             String
-  PropertyServices PropertyServices[]
+  propertyServices PropertyServices[]
 }
 
 model Treatment {
   id                 Int                  @id @default(autoincrement())
   name               String
-  PropertyTreatments PropertyTreatments[]
+  propertyTreatments PropertyTreatments[]
 }
