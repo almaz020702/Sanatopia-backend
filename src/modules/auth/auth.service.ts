@@ -161,7 +161,7 @@ export class AuthService {
     return this.emailVerificationService.sendForgotPasswordEmail(email);
   }
 
-  async validateResetToken(token: string): Promise<boolean> {
+  private async validateResetToken(token: string): Promise<boolean> {
     try {
       const decoded = this.jwtService.decode(token);
 
