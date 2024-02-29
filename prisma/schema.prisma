@@ -41,18 +41,23 @@ model UserRoles {
 model Booking {
   id                 Int                  @id @default(autoincrement())
   userId             Int
-  propertyId         Int
+  roomId             Int
   checkIn            DateTime
   checkOut           DateTime
-  guests             Int
   totalPrice         Float
-  status             String               @db.VarChar()
+  status             BookingStatus        @default(PENDING)
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  property           Property             @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  room               Room                 @relation(fields: [roomId], references: [id])
   propertyServices   PropertyServices[]
   propertyTreatments PropertyTreatments[]
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELED
+  PENDING
 }
 
 model Property {
@@ -70,9 +75,9 @@ model Property {
   owner              User                 @relation(fields: [ownerId], references: [id])
   rooms              Room[]
   propertyPhotos     PropertyPhoto[]
-  bookings           Booking[]
   propertyServices   PropertyServices[]
   propertyTreatments PropertyTreatments[]
+  roomTypes          RoomType[]
 }
 
 enum PropertyType {
@@ -93,30 +98,39 @@ model Photo {
 }
 
 model Facility {
-  id             Int            @id @default(autoincrement())
-  name           String         @db.VarChar()
-  roomFacilities RoomFacility[]
+  id                 Int                @id @default(autoincrement())
+  name               String             @db.VarChar()
+  roomTypeFacilities RoomTypeFacility[]
 }
 
 model Room {
-  id             Int            @id @default(autoincrement())
-  name           String         @db.VarChar()
-  roomType       String         @db.VarChar()
-  propertyId     Int
-  surfaceArea    Float
-  pricePerDay    Float
-  quantity       Int
-  capacity       Int
-  roomFacilities RoomFacility[]
-  property       Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id          Int       @id @default(autoincrement())
+  roomTypeId  Int
+  propertyId  Int
+  roomType    RoomType  @relation(fields: [roomTypeId], references: [id])
+  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bookings    Booking[]
 }
 
-model RoomFacility {
+model RoomType {
+  id                 Int                @id @default(autoincrement())
+  name               String
+  description        String?
+  surfaceArea        Float
+  pricePerDay        Float
+  propertyId         Int
+  capacity           Int
+  property           Property           @relation(fields: [propertyId], references: [id])
+  rooms              Room[]
+  roomTypeFacilities RoomTypeFacility[]
+}
+
+model RoomTypeFacility {
   id         Int      @id @default(autoincrement())
-  roomId     Int
+  roomTypeId Int
   facilityId Int
-  room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  roomType   RoomType @relation(fields: [roomTypeId], references: [id])
 }
 
 model PropertyPhoto {
