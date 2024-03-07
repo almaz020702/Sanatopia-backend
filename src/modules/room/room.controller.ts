@@ -13,4 +13,9 @@ export class RoomController {
   async createRoomType(@Body() createRoomTypeDto: CreateRoomTypeDto) {
     return this.roomService.createRoomType(createRoomTypeDto);
   }
+
+  @Post('/create-room-types')
+  async createRoomTypes(@Body() createRoomTypesDto: CreateRoomTypeDto[]) {
+    return this.roomService.createRoomTypes(createRoomTypesDto);
+  }
 }

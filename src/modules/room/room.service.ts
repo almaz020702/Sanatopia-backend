@@ -61,4 +61,12 @@ export class RoomService {
 
     return createdRoomType;
   }
+
+  async createRoomTypes(createRoomTypesDto: CreateRoomTypeDto[]) {
+    return Promise.all(
+      createRoomTypesDto.map((createRoomTypeDto) =>
+        this.createRoomType(createRoomTypeDto),
+      ),
+    );
+  }
 }
