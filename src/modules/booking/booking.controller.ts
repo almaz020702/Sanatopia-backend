@@ -24,8 +24,15 @@ export class BookingController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('ADMIN')
-  @Get(':id')
+  @Get('/:id')
   async getBookingById(@Param('id') id: number) {
     return this.bookingService.getBookingById(id);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN', 'USER')
+  @Get('/user/bookings')
+  async getBookingsByUserId(@UserId() userId: number) {
+    return this.bookingService.getBookingsByUserId(userId);
   }
 }

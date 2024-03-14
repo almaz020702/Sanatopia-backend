@@ -125,4 +125,16 @@ export class BookingService {
 
     return booking;
   }
+
+  async getBookingsByUserId(userId: number): Promise<GetBookingResponse[]> {
+    const bookings = await this.prismaService.booking.findMany({
+      where: { userId },
+    });
+
+    if (!bookings || bookings.length === 0) {
+      throw new NotFoundException('No bookings found for the user');
+    }
+
+    return bookings;
+  }
 }
