@@ -18,16 +18,7 @@ export class BookingService {
   ): Promise<CreateBookingResponse> {
     const { roomId, checkIn, checkOut } = bookingData;
 
-    if (checkIn >= checkOut) {
-      throw new BadRequestException(
-        'Check-out date must be after check-in date',
-      );
-    }
-
-    const today = new Date();
-    if (checkIn < today || checkOut < today) {
-      throw new BadRequestException('Booking dates cannot be in the past');
-    }
+    this.validateDates(checkIn, checkOut);
 
     try {
       const room = await this.prismaService.room.findUnique({
@@ -105,5 +96,18 @@ export class BookingService {
       (checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24),
     );
     return durationInDays * pricePerDay;
+  }
+
+  private validateDates(checkIn: Date, checkOut: Date): void {
+    if (checkIn >= checkOut) {
+      throw new BadRequestException(
+        'Check-out date must be after check-in date',
+      );
+    }
+
+    const today = new Date();
+    if (checkIn < today || checkOut < today) {
+      throw new BadRequestException('Booking dates cannot be in the past');
+    }
   }
 }
