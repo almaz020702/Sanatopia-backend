@@ -131,6 +131,7 @@ model RoomTypeFacility {
   facilityId Int
   facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   roomType   RoomType @relation(fields: [roomTypeId], references: [id])
+  @@unique([roomTypeId, facilityId])
 }
 
 model PropertyPhoto {
@@ -150,6 +151,7 @@ model PropertyServices {
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   service    Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   booking    Booking? @relation(fields: [bookingId], references: [id])
+  @@unique([propertyId, serviceId])
 }
 
 model PropertyTreatments {
@@ -161,6 +163,7 @@ model PropertyTreatments {
   property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   treatment   Treatment @relation(fields: [treatmentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   booking     Booking?  @relation(fields: [bookingId], references: [id])
+  @@unique([propertyId, treatmentId])
 }
 
 model Service {
