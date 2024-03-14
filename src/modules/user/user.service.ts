@@ -27,14 +27,14 @@ export class UserService {
   async getUserRoles(userId: number): Promise<string[]> {
     const userRoles = await this.prismaService.userRoles.findMany({
       where: { userId },
-      include: { Role: true },
+      include: { role: true },
     });
 
     if (!userRoles || userRoles.length === 0) {
       throw new NotFoundException('User roles not found');
     }
 
-    const roleNames = userRoles.map((userRole) => userRole.Role.name);
+    const roleNames = userRoles.map((userRole) => userRole.role.name);
 
     return roleNames;
   }

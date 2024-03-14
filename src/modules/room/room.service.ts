@@ -1,85 +1,72 @@
+/* eslint-disable @typescript-eslint/no-loop-func */
+/* eslint-disable no-await-in-loop */
 /* eslint-disable function-paren-newline */
 /* eslint-disable implicit-arrow-linebreak */
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
-import { Prisma, Room } from '@prisma/client';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import {
-  CreateRoomResponse,
-  CreateRoomsResponse,
-} from './interfaces/create-room-response.interface';
-import { CreateRoomBodyDto } from './dto/create-room-body.dto';
+import { CreateRoomTypeDto } from './dto/create-room-type.dto';
 
 @Injectable()
 export class RoomService {
   constructor(private prismaService: PrismaService) {}
 
-  public async createHotelRooms(
-    rooms: CreateRoomBodyDto[],
-  ): Promise<CreateRoomsResponse> {
-    return this.prismaService.$transaction(
-      async (tx): Promise<CreateRoomsResponse> => {
-        const createdRooms = await Promise.all(
-          rooms.map(({ facilities, ...roomDetails }) =>
-            tx.room.create({
-              data: { ...roomDetails, surfaceArea: roomDetails.surfaceArea },
-            }),
-          ),
-        );
+  async createRoomType(createRoomTypeDto: CreateRoomTypeDto) {
+    const {
+      name,
+      description,
+      surfaceArea,
+      pricePerDay,
+      capacity,
+      quantity,
+      propertyId,
+      facilityIds,
+    } = createRoomTypeDto;
 
-        const facilitiesData = rooms.flatMap((room, index) =>
-          room.facilities.map((facilityId) => ({
-            roomId: createdRooms[index].id,
-            facilityId,
-          })),
-        );
+    let createdRoomType;
 
-        await tx.roomFacility.createMany({
-          data: facilitiesData,
+    await this.prismaService.$transaction(async (tx) => {
+      createdRoomType = await tx.roomType.create({
+        data: {
+          name,
+          description,
+          surfaceArea,
+          pricePerDay,
+          capacity,
+          property: { connect: { id: propertyId } },
+        },
+        include: { rooms: true },
+      });
+
+      for (let i = 0; i < quantity; i += 1) {
+        await tx.room.create({
+          data: {
+            roomType: { connect: { id: createdRoomType.id } },
+            property: { connect: { id: createdRoomType.propertyId } },
+          },
         });
+      }
 
-        return {
-          message: 'You created rooms!',
-          roomIds: createdRooms.map((room) => room.id),
-        };
-      },
-    );
-  }
-
-  // below methods for the future use
-  public async createRoom(
-    roomData: CreateRoomBodyDto,
-  ): Promise<CreateRoomResponse> {
-    const { facilities, ...roomDetails } = roomData;
-    return this.prismaService.$transaction(
-      async (tx): Promise<CreateRoomResponse> => {
-        const room = await tx.room.create({
-          data: { ...roomDetails, surfaceArea: roomDetails.surfaceArea },
-        });
-        await this.createRoomFacilities(facilities, room.id, tx);
-        return {
-          message: 'You have created a room',
-          roomId: room.id,
-        };
-      },
-    );
-  }
-
-  private async createRoomFacilities(
-    facilitiesIds: number[],
-    roomId: number,
-    tx: Prisma.TransactionClient,
-  ): Promise<void> {
-    const roomFacilities = facilitiesIds.map((id) => ({
-      facilityId: id,
-      roomId,
-    }));
-    tx.roomFacility.createMany({
-      data: roomFacilities,
+      await Promise.all(
+        facilityIds.map((facilityId) =>
+          tx.roomTypeFacility.create({
+            data: {
+              roomType: { connect: { id: createdRoomType.id } },
+              facility: { connect: { id: facilityId } },
+            },
+          }),
+        ),
+      );
     });
+
+    return createdRoomType;
   }
 
-  public async getAllRooms(propertyId: number): Promise<Room[]> {
-    return this.prismaService.room.findMany({ where: { propertyId } });
+  async createRoomTypes(createRoomTypesDto: CreateRoomTypeDto[]) {
+    return Promise.all(
+      createRoomTypesDto.map((createRoomTypeDto) =>
+        this.createRoomType(createRoomTypeDto),
+      ),
+    );
   }
 }

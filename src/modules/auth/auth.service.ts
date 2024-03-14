@@ -39,9 +39,9 @@ export class AuthService {
       data: {
         email: userData.email,
         password: hashedPassword,
-        UserRoles: {
+        userRoles: {
           create: {
-            Role: {
+            role: {
               connectOrCreate: {
                 where: {
                   name: 'USER',

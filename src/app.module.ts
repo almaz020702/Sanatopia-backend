@@ -14,6 +14,7 @@ import { FacilityModule } from './modules/facility/facility.module';
 import { RoomModule } from './modules/room/room.module';
 import { OwnerModule } from './modules/owner/owner.module';
 import { PropertyModule } from './modules/property/property.module';
+import { BookingModule } from './modules/booking/booking.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PropertyModule } from './modules/property/property.module';
     RoomModule,
     OwnerModule,
     PropertyModule,
+    BookingModule,
   ],
   controllers: [AppController],
   providers: [
