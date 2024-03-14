@@ -1,6 +1,6 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable @typescript-eslint/indent */
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { BookingService } from './booking.service';
@@ -20,5 +20,12 @@ export class BookingController {
     @Body() bookingData: CreateBookingDto,
   ) {
     return this.bookingService.createBooking(userId, bookingData);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get(':id')
+  async getBookingById(@Param('id') id: number) {
+    return this.bookingService.getBookingById(id);
   }
 }

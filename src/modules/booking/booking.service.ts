@@ -6,7 +6,10 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
-import { CreateBookingResponse } from './interfaces/booking-response.interface';
+import {
+  CreateBookingResponse,
+  GetBookingResponse,
+} from './interfaces/booking-response.interface';
 
 @Injectable()
 export class BookingService {
@@ -109,5 +112,17 @@ export class BookingService {
     if (checkIn < today || checkOut < today) {
       throw new BadRequestException('Booking dates cannot be in the past');
     }
+  }
+
+  async getBookingById(id: number): Promise<GetBookingResponse> {
+    const booking = await this.prismaService.booking.findUnique({
+      where: { id },
+    });
+
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    return booking;
   }
 }
