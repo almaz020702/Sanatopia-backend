@@ -10,6 +10,7 @@ import {
   CreateBookingResponse,
   GetBookingResponse,
 } from './interfaces/booking-response.interface';
+import { Room } from '../room/interfaces/room.interface';
 
 @Injectable()
 export class BookingService {
@@ -19,42 +20,27 @@ export class BookingService {
     userId: number,
     bookingData: CreateBookingDto,
   ): Promise<CreateBookingResponse> {
-    const { roomId, checkIn, checkOut } = bookingData;
+    const { roomTypeId, checkIn, checkOut } = bookingData;
 
     this.validateDates(checkIn, checkOut);
 
     try {
-      const room = await this.prismaService.room.findUnique({
-        where: { id: roomId },
-        include: { bookings: true, roomType: true },
+      const room = await this.findAvailableRoom(roomTypeId, checkIn, checkOut);
+
+      const roomType = await this.prismaService.roomType.findUnique({
+        where: { id: room.roomTypeId },
       });
-
-      if (!room) {
-        throw new NotFoundException('Room not found');
-      }
-
-      const isRoomAvailable = await this.isRoomAvailableForBooking(
-        roomId,
-        checkIn,
-        checkOut,
-      );
-
-      if (!isRoomAvailable) {
-        throw new BadRequestException(
-          'Room is not available for booking during the specified dates',
-        );
-      }
 
       const totalPrice = this.calculateTotalPrice(
         checkIn,
         checkOut,
-        room.roomType.pricePerDay,
+        roomType.pricePerDay,
       );
 
       const booking = await this.prismaService.booking.create({
         data: {
           userId,
-          roomId,
+          roomId: room.id,
           checkIn,
           checkOut,
           totalPrice,
@@ -69,25 +55,32 @@ export class BookingService {
     }
   }
 
-  private async isRoomAvailableForBooking(
-    roomId: number,
+  private async findAvailableRoom(
+    roomTypeId: number,
     checkIn: Date,
     checkOut: Date,
-  ): Promise<boolean> {
-    if (!(checkIn instanceof Date) || !(checkOut instanceof Date)) {
-      throw new Error('Invalid date inputs');
-    }
-
+  ): Promise<Room> {
     const query = Prisma.sql`
-      SELECT COUNT(*)
-      FROM "Booking"
-      WHERE "roomId" = ${roomId}
-      AND ("checkIn", "checkOut") OVERLAPS (${checkIn}, ${checkOut})
+    SELECT "Room".*
+    FROM "Room"
+    LEFT JOIN "Booking" ON "Room"."id" = "Booking"."roomId"
+    WHERE  "Room"."roomTypeId" = ${roomTypeId}
+    AND (("Booking"."id" IS NULL)
+         OR 
+         "Booking"."roomId" NOT IN
+         (SELECT "roomId" 
+          FROM "Booking" 
+          WHERE ("Booking"."checkIn", "Booking"."checkOut") OVERLAPS (${checkIn}, ${checkOut})))
+    LIMIT 1
     `;
 
-    const result = await this.prismaService.$queryRaw(query);
+    const availableRooms = await this.prismaService.$queryRaw<Room[]>(query);
 
-    return parseInt(result[0].count, 10) === 0;
+    if (availableRooms.length === 0) {
+      throw new BadRequestException('No available rooms found for booking');
+    }
+
+    return availableRooms[0];
   }
 
   private calculateTotalPrice(

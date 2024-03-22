@@ -4,7 +4,7 @@ import { IsInt, IsNotEmpty, IsDateString, ValidateNested, IsDate } from 'class-v
 export class CreateBookingDto {
   @IsInt()
   @IsNotEmpty()
-  roomId: number;
+  roomTypeId: number;
 
   @IsDate()
   @IsNotEmpty()

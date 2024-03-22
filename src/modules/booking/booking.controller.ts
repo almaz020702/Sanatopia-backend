@@ -7,6 +7,10 @@ import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import {
+  CreateBookingResponse,
+  GetBookingResponse,
+} from './interfaces/booking-response.interface';
 
 @Controller('booking')
 export class BookingController {
@@ -18,21 +22,23 @@ export class BookingController {
   async createBooking(
     @UserId() userId: number,
     @Body() bookingData: CreateBookingDto,
-  ) {
+  ): Promise<CreateBookingResponse> {
     return this.bookingService.createBooking(userId, bookingData);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Get('/:id')
-  async getBookingById(@Param('id') id: number) {
+  async getBookingById(@Param('id') id: number): Promise<GetBookingResponse> {
     return this.bookingService.getBookingById(id);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('ADMIN', 'USER')
   @Get('/user/bookings')
-  async getBookingsByUserId(@UserId() userId: number) {
+  async getBookingsByUserId(
+    @UserId() userId: number,
+  ): Promise<GetBookingResponse[]> {
     return this.bookingService.getBookingsByUserId(userId);
   }
 }
