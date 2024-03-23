@@ -185,8 +185,6 @@ export class BookingService {
     data.checkIn = checkIn;
     data.checkOut = checkOut;
 
-    console.log(data);
-
     const updatedBooking = await this.prismaService.booking.update({
       where: { id: booking.id },
       data,
