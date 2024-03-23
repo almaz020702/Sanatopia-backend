@@ -11,6 +11,7 @@ import {
   GetBookingResponse,
 } from './interfaces/booking-response.interface';
 import { Room } from '../room/interfaces/room.interface';
+import { UpdateBookingDto } from './dto/update-booking.dto';
 
 @Injectable()
 export class BookingService {
@@ -129,5 +130,68 @@ export class BookingService {
     }
 
     return bookings;
+  }
+
+  async updateBooking(
+    id: number,
+    userId: number,
+    newBookingData: UpdateBookingDto,
+  ): Promise<CreateBookingResponse> {
+    const booking = await this.prismaService.booking.findUnique({
+      where: { id },
+      include: { room: true, user: true },
+    });
+
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    if (booking.userId !== userId) {
+      throw new BadRequestException(
+        'You are not authorized to update this booking',
+      );
+    }
+
+    const { roomTypeId, checkIn, checkOut } = newBookingData;
+
+    this.validateDates(checkIn, checkOut);
+
+    const data: Prisma.BookingUpdateInput = {};
+
+    const availableRoom = await this.findAvailableRoom(
+      roomTypeId,
+      checkIn,
+      checkOut,
+    );
+
+    if (!availableRoom) {
+      throw new BadRequestException(
+        'No available rooms found for the specified dates',
+      );
+    }
+
+    data.room = { connect: { id: availableRoom.id } };
+
+    const roomType = await this.prismaService.roomType.findUnique({
+      where: { id: roomTypeId || booking.room.roomTypeId },
+    });
+    const totalPrice = this.calculateTotalPrice(
+      checkIn,
+      checkOut,
+      roomType.pricePerDay,
+    );
+    data.totalPrice = totalPrice;
+
+    data.checkIn = checkIn;
+    data.checkOut = checkOut;
+
+    console.log(data);
+
+    const updatedBooking = await this.prismaService.booking.update({
+      where: { id: booking.id },
+      data,
+    });
+
+    return { message: 'success', ...updatedBooking };
   }
 }

@@ -11,6 +11,7 @@ import {
   CreateBookingResponse,
   GetBookingResponse,
 } from './interfaces/booking-response.interface';
+import { UpdateBookingDto } from './dto/update-booking.dto';
 
 @Controller('booking')
 export class BookingController {
@@ -40,5 +41,16 @@ export class BookingController {
     @UserId() userId: number,
   ): Promise<GetBookingResponse[]> {
     return this.bookingService.getBookingsByUserId(userId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('USER')
+  @Post('/:id')
+  async updateBooking(
+    @Param('id') id: number,
+    @UserId() userId: number,
+    @Body() newBookingData: UpdateBookingDto,
+  ): Promise<CreateBookingResponse> {
+    return this.bookingService.updateBooking(id, userId, newBookingData);
   }
 }
