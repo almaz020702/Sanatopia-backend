@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/common/prisma/prisma.service';
@@ -191,5 +192,23 @@ export class BookingService {
     });
 
     return { message: 'success', ...updatedBooking };
+  }
+
+  async deleteBooking(id: number, userId: number): Promise<void> {
+    const booking = await this.prismaService.booking.findUnique({
+      where: { id },
+      include: { user: true },
+    });
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    if (booking.user.id !== userId) {
+      throw new UnauthorizedException(
+        'You are not authorized to delete this booking',
+      );
+    }
+
+    await this.prismaService.booking.delete({ where: { id } });
   }
 }

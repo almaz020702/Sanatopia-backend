@@ -1,6 +1,14 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable @typescript-eslint/indent */
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { BookingService } from './booking.service';
@@ -52,5 +60,15 @@ export class BookingController {
     @Body() newBookingData: UpdateBookingDto,
   ): Promise<CreateBookingResponse> {
     return this.bookingService.updateBooking(id, userId, newBookingData);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN', 'USER')
+  @Delete('/:id')
+  async deleteBooking(
+    @Param('id') id: number,
+    @UserId() userId: number,
+  ): Promise<void> {
+    await this.bookingService.deleteBooking(id, userId);
   }
 }
