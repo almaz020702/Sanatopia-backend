@@ -2,11 +2,17 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
-import { CreateBookingResponse } from './interfaces/booking-response.interface';
+import {
+  CreateBookingResponse,
+  GetBookingResponse,
+} from './interfaces/booking-response.interface';
+import { Room } from '../room/interfaces/room.interface';
+import { UpdateBookingDto } from './dto/update-booking.dto';
 
 @Injectable()
 export class BookingService {
@@ -16,42 +22,27 @@ export class BookingService {
     userId: number,
     bookingData: CreateBookingDto,
   ): Promise<CreateBookingResponse> {
-    const { roomId, checkIn, checkOut } = bookingData;
+    const { roomTypeId, checkIn, checkOut } = bookingData;
 
     this.validateDates(checkIn, checkOut);
 
     try {
-      const room = await this.prismaService.room.findUnique({
-        where: { id: roomId },
-        include: { bookings: true, roomType: true },
+      const room = await this.findAvailableRoom(roomTypeId, checkIn, checkOut);
+
+      const roomType = await this.prismaService.roomType.findUnique({
+        where: { id: room.roomTypeId },
       });
-
-      if (!room) {
-        throw new NotFoundException('Room not found');
-      }
-
-      const isRoomAvailable = await this.isRoomAvailableForBooking(
-        roomId,
-        checkIn,
-        checkOut,
-      );
-
-      if (!isRoomAvailable) {
-        throw new BadRequestException(
-          'Room is not available for booking during the specified dates',
-        );
-      }
 
       const totalPrice = this.calculateTotalPrice(
         checkIn,
         checkOut,
-        room.roomType.pricePerDay,
+        roomType.pricePerDay,
       );
 
       const booking = await this.prismaService.booking.create({
         data: {
           userId,
-          roomId,
+          roomId: room.id,
           checkIn,
           checkOut,
           totalPrice,
@@ -66,25 +57,32 @@ export class BookingService {
     }
   }
 
-  private async isRoomAvailableForBooking(
-    roomId: number,
+  private async findAvailableRoom(
+    roomTypeId: number,
     checkIn: Date,
     checkOut: Date,
-  ): Promise<boolean> {
-    if (!(checkIn instanceof Date) || !(checkOut instanceof Date)) {
-      throw new Error('Invalid date inputs');
-    }
-
+  ): Promise<Room> {
     const query = Prisma.sql`
-      SELECT COUNT(*)
-      FROM "Booking"
-      WHERE "roomId" = ${roomId}
-      AND ("checkIn", "checkOut") OVERLAPS (${checkIn}, ${checkOut})
+    SELECT "Room".*
+    FROM "Room"
+    LEFT JOIN "Booking" ON "Room"."id" = "Booking"."roomId"
+    WHERE  "Room"."roomTypeId" = ${roomTypeId}
+    AND (("Booking"."id" IS NULL)
+         OR 
+         "Booking"."roomId" NOT IN
+         (SELECT "roomId" 
+          FROM "Booking" 
+          WHERE ("Booking"."checkIn", "Booking"."checkOut") OVERLAPS (${checkIn}, ${checkOut})))
+    LIMIT 1
     `;
 
-    const result = await this.prismaService.$queryRaw(query);
+    const availableRooms = await this.prismaService.$queryRaw<Room[]>(query);
 
-    return parseInt(result[0].count, 10) === 0;
+    if (availableRooms.length === 0) {
+      throw new BadRequestException('No available rooms found for booking');
+    }
+
+    return availableRooms[0];
   }
 
   private calculateTotalPrice(
@@ -109,5 +107,117 @@ export class BookingService {
     if (checkIn < today || checkOut < today) {
       throw new BadRequestException('Booking dates cannot be in the past');
     }
+  }
+
+  async getBookingById(id: number): Promise<GetBookingResponse> {
+    const booking = await this.prismaService.booking.findUnique({
+      where: { id },
+    });
+
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    return booking;
+  }
+
+  async getBookingsByUserId(userId: number): Promise<GetBookingResponse[]> {
+    const bookings = await this.prismaService.booking.findMany({
+      where: { userId },
+    });
+
+    if (!bookings || bookings.length === 0) {
+      throw new NotFoundException('No bookings found for the user');
+    }
+
+    return bookings;
+  }
+
+  async updateBooking(
+    id: number,
+    userId: number,
+    newBookingData: UpdateBookingDto,
+  ): Promise<CreateBookingResponse> {
+    const booking = await this.prismaService.booking.findUnique({
+      where: { id },
+      include: { room: true, user: true },
+    });
+
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    if (booking.userId !== userId) {
+      throw new BadRequestException(
+        'You are not authorized to update this booking',
+      );
+    }
+
+    this.validateDates(newBookingData.checkIn, newBookingData.checkOut);
+
+    const data = await this.prepareUpdateData(newBookingData);
+
+    const updatedBooking = await this.prismaService.booking.update({
+      where: { id: booking.id },
+      data,
+    });
+
+    return { message: 'success', ...updatedBooking };
+  }
+
+  private async prepareUpdateData(
+    newBookingData: UpdateBookingDto,
+  ): Promise<Prisma.BookingUpdateInput> {
+    const data: Prisma.BookingUpdateInput = {};
+
+    if (newBookingData.roomTypeId) {
+      const availableRoom = await this.findAvailableRoom(
+        newBookingData.roomTypeId,
+        newBookingData.checkIn,
+        newBookingData.checkOut,
+      );
+
+      if (!availableRoom) {
+        throw new BadRequestException(
+          'No available rooms found for the specified dates',
+        );
+      }
+
+      data.room = { connect: { id: availableRoom.id } };
+
+      const roomType = await this.prismaService.roomType.findUnique({
+        where: { id: newBookingData.roomTypeId },
+      });
+
+      const totalPrice = this.calculateTotalPrice(
+        newBookingData.checkIn,
+        newBookingData.checkOut,
+        roomType.pricePerDay,
+      );
+      data.totalPrice = totalPrice;
+    }
+
+    data.checkIn = newBookingData.checkIn;
+    data.checkOut = newBookingData.checkOut;
+
+    return data;
+  }
+
+  async deleteBooking(id: number, userId: number): Promise<void> {
+    const booking = await this.prismaService.booking.findUnique({
+      where: { id },
+      include: { user: true },
+    });
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    if (booking.user.id !== userId) {
+      throw new UnauthorizedException(
+        'You are not authorized to delete this booking',
+      );
+    }
+
+    await this.prismaService.booking.delete({ where: { id } });
   }
 }
