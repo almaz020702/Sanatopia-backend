@@ -153,38 +153,9 @@ export class BookingService {
       );
     }
 
-    const { roomTypeId, checkIn, checkOut } = newBookingData;
+    this.validateDates(newBookingData.checkIn, newBookingData.checkOut);
 
-    this.validateDates(checkIn, checkOut);
-
-    const data: Prisma.BookingUpdateInput = {};
-
-    const availableRoom = await this.findAvailableRoom(
-      roomTypeId,
-      checkIn,
-      checkOut,
-    );
-
-    if (!availableRoom) {
-      throw new BadRequestException(
-        'No available rooms found for the specified dates',
-      );
-    }
-
-    data.room = { connect: { id: availableRoom.id } };
-
-    const roomType = await this.prismaService.roomType.findUnique({
-      where: { id: roomTypeId || booking.room.roomTypeId },
-    });
-    const totalPrice = this.calculateTotalPrice(
-      checkIn,
-      checkOut,
-      roomType.pricePerDay,
-    );
-    data.totalPrice = totalPrice;
-
-    data.checkIn = checkIn;
-    data.checkOut = checkOut;
+    const data = await this.prepareUpdateData(newBookingData);
 
     const updatedBooking = await this.prismaService.booking.update({
       where: { id: booking.id },
@@ -192,6 +163,44 @@ export class BookingService {
     });
 
     return { message: 'success', ...updatedBooking };
+  }
+
+  private async prepareUpdateData(
+    newBookingData: UpdateBookingDto,
+  ): Promise<Prisma.BookingUpdateInput> {
+    const data: Prisma.BookingUpdateInput = {};
+
+    if (newBookingData.roomTypeId) {
+      const availableRoom = await this.findAvailableRoom(
+        newBookingData.roomTypeId,
+        newBookingData.checkIn,
+        newBookingData.checkOut,
+      );
+
+      if (!availableRoom) {
+        throw new BadRequestException(
+          'No available rooms found for the specified dates',
+        );
+      }
+
+      data.room = { connect: { id: availableRoom.id } };
+
+      const roomType = await this.prismaService.roomType.findUnique({
+        where: { id: newBookingData.roomTypeId },
+      });
+
+      const totalPrice = this.calculateTotalPrice(
+        newBookingData.checkIn,
+        newBookingData.checkOut,
+        roomType.pricePerDay,
+      );
+      data.totalPrice = totalPrice;
+    }
+
+    data.checkIn = newBookingData.checkIn;
+    data.checkOut = newBookingData.checkOut;
+
+    return data;
   }
 
   async deleteBooking(id: number, userId: number): Promise<void> {
