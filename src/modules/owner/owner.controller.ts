@@ -9,6 +9,7 @@ import {
   UseGuards,
   Param,
   Put,
+  Delete,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -66,5 +67,15 @@ export class OwnerController {
     @Body() updatedData: UpdatePropertyDto,
   ): Promise<Property> {
     return this.propertyService.updateProperty(userId, propertyId, updatedData);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Delete('/properties/:id')
+  async deleteProperty(
+    @UserId() userId: number,
+    @Param('id') propertyId: number,
+  ): Promise<Property> {
+    return this.propertyService.deleteProperty(propertyId, userId);
   }
 }

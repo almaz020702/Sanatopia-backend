@@ -8,6 +8,7 @@ import { PrismaService } from 'src/common/prisma/prisma.service';
 import { PropertyCreateRespnse } from './interfaces/property-create-response.interface';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
+import { Property } from './interfaces/property.interface';
 
 @Injectable()
 export class PropertyService {
@@ -38,7 +39,7 @@ export class PropertyService {
     ownerId: number,
     id: number,
     updatePropertyDto: UpdatePropertyDto,
-  ) {
+  ): Promise<Property> {
     const property = await this.prismaService.property.findUnique({
       where: { id },
       include: { owner: true },
@@ -61,5 +62,29 @@ export class PropertyService {
     });
 
     return updatedProperty;
+  }
+
+  async deleteProperty(propertyId: number, ownerId: number): Promise<Property> {
+    const property = await this.prismaService.property.findUnique({
+      where: { id: propertyId },
+      include: { owner: true },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    if (property.owner.id !== ownerId) {
+      throw new UnauthorizedException(
+        'You are not authorized to delete this property',
+      );
+    }
+
+    const deletedProperty = await this.prismaService.property.delete({
+      where: { id: propertyId },
+      include: { owner: true },
+    });
+
+    return deletedProperty;
   }
 }
