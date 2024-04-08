@@ -11,6 +11,7 @@ import { AuthService } from '../auth/auth.service';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { AuthResponse } from '../auth/interfaces/auth-response.interface';
 import { Property } from '../property/interfaces/property.interface';
+import { UpdatePropertyDto } from '../property/dto/update-property.dto';
 
 @Injectable()
 export class OwnerService {
@@ -66,5 +67,34 @@ export class OwnerService {
     }
 
     return property;
+  }
+
+  async updateProperty(
+    ownerId: number,
+    id: number,
+    updatePropertyDto: UpdatePropertyDto,
+  ) {
+    const property = await this.prismaService.property.findUnique({
+      where: { id },
+      include: { owner: true },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    if (property.ownerId !== ownerId) {
+      throw new UnauthorizedException(
+        'You are not authorized to update this property',
+      );
+    }
+
+    const updatedProperty = await this.prismaService.property.update({
+      where: { id },
+      data: updatePropertyDto,
+      include: { owner: true },
+    });
+
+    return updatedProperty;
   }
 }

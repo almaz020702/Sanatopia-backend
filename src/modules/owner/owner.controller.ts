@@ -8,6 +8,7 @@ import {
   Get,
   UseGuards,
   Param,
+  Put,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -19,6 +20,7 @@ import { AuthResponse } from '../auth/interfaces/auth-response.interface';
 import { Property } from '../property/interfaces/property.interface';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { UpdatePropertyDto } from '../property/dto/update-property.dto';
 
 @ApiTags('Owner')
 @Controller('owner')
@@ -49,5 +51,16 @@ export class OwnerController {
     @Param('id') propertyId: number,
   ): Promise<Property> {
     return this.ownerService.getPropertyById(userId, propertyId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Put('/properties/:id')
+  async updateProperty(
+    @UserId() userId: number,
+    @Param('id') propertyId: number,
+    @Body() updatedData: UpdatePropertyDto,
+  ): Promise<Property> {
+    return this.ownerService.updateProperty(userId, propertyId, updatedData);
   }
 }
