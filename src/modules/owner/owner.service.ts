@@ -1,10 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { Response } from 'express';
 import { UserRoleType } from '../user/enums/user-role.enum';
 import { AuthService } from '../auth/auth.service';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { AuthResponse } from '../auth/interfaces/auth-response.interface';
+import { Property } from '../property/interfaces/property.interface';
 
 @Injectable()
 export class OwnerService {
@@ -28,5 +33,18 @@ export class OwnerService {
       data: { userId: user.user.id, roleId: role.id },
     });
     return user;
+  }
+
+  async getOwnerProperties(ownerId: number): Promise<Property[]> {
+    const properties = await this.prismaService.property.findMany({
+      where: { ownerId },
+      include: { owner: true },
+    });
+
+    if (!properties || properties.length === 0) {
+      throw new NotFoundException('No properties found for the owner');
+    }
+
+    return properties;
   }
 }
