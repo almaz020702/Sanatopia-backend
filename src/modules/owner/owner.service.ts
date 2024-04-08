@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { Response } from 'express';
@@ -46,5 +47,24 @@ export class OwnerService {
     }
 
     return properties;
+  }
+
+  async getPropertyById(ownerId: number, id: number): Promise<Property> {
+    const property = await this.prismaService.property.findUnique({
+      where: { id },
+      include: { owner: true },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    if (property.owner.id !== ownerId) {
+      throw new UnauthorizedException(
+        'You are not authorized to access this property',
+      );
+    }
+
+    return property;
   }
 }

@@ -1,6 +1,14 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable @typescript-eslint/indent */
-import { Controller, Post, Body, Res, Get, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  Get,
+  UseGuards,
+  Param,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/common/decorators/user-id.decorator';
@@ -31,5 +39,15 @@ export class OwnerController {
   @Get('/properties')
   async getOwnerProperties(@UserId() userId: number): Promise<Property[]> {
     return this.ownerService.getOwnerProperties(userId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Get('/properties/:id')
+  async getPropertyById(
+    @UserId() userId: number,
+    @Param('id') propertyId: number,
+  ): Promise<Property> {
+    return this.ownerService.getPropertyById(userId, propertyId);
   }
 }
