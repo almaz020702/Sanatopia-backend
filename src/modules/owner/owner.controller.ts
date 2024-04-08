@@ -21,11 +21,15 @@ import { Property } from '../property/interfaces/property.interface';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UpdatePropertyDto } from '../property/dto/update-property.dto';
+import { PropertyService } from '../property/property.service';
 
 @ApiTags('Owner')
 @Controller('owner')
 export class OwnerController {
-  constructor(private readonly ownerService: OwnerService) {}
+  constructor(
+    private readonly ownerService: OwnerService,
+    private readonly propertyService: PropertyService,
+  ) {}
 
   @ApiOperation({ summary: 'owner registration' })
   @Post('/registration')
@@ -61,6 +65,6 @@ export class OwnerController {
     @Param('id') propertyId: number,
     @Body() updatedData: UpdatePropertyDto,
   ): Promise<Property> {
-    return this.ownerService.updateProperty(userId, propertyId, updatedData);
+    return this.propertyService.updateProperty(userId, propertyId, updatedData);
   }
 }

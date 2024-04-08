@@ -5,6 +5,7 @@ import { OwnerController } from './owner.controller';
 import { OwnerService } from './owner.service';
 import { AuthModule } from '../auth/auth.module';
 import { UserModule } from '../user/user.module';
+import { PropertyModule } from '../property/property.module';
 
 @Module({
   controllers: [OwnerController],
@@ -19,6 +20,7 @@ import { UserModule } from '../user/user.module';
       },
     }),
     UserModule,
+    PropertyModule,
   ],
 })
 export class OwnerModule {}
