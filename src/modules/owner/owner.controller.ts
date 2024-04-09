@@ -26,6 +26,8 @@ import { UpdatePropertyDto } from '../property/dto/update-property.dto';
 import { PropertyService } from '../property/property.service';
 import { Room } from '../room/interfaces/room.interface';
 import { RoomsPaginationQueryDto } from '../room/dto/rooms-pagination.dto';
+import { RoomService } from '../room/room.service';
+import { CreateRoomDto } from '../room/dto/create-room.dto';
 
 @ApiTags('Owner')
 @Controller('owner')
@@ -33,6 +35,7 @@ export class OwnerController {
   constructor(
     private readonly ownerService: OwnerService,
     private readonly propertyService: PropertyService,
+    private readonly roomService: RoomService,
   ) {}
 
   @ApiOperation({ summary: 'owner registration' })
@@ -95,5 +98,16 @@ export class OwnerController {
       userId,
       paginationDto,
     );
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Post('/:propertyId/rooms')
+  async addRoom(
+    @UserId() userId: number,
+    @Param('propertyId') propertyId: number,
+    @Body() roomData: CreateRoomDto,
+  ): Promise<Room> {
+    return this.roomService.addRoom(roomData, userId, propertyId);
   }
 }

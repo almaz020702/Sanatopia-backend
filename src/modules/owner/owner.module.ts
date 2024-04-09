@@ -6,6 +6,7 @@ import { OwnerService } from './owner.service';
 import { AuthModule } from '../auth/auth.module';
 import { UserModule } from '../user/user.module';
 import { PropertyModule } from '../property/property.module';
+import { RoomModule } from '../room/room.module';
 
 @Module({
   controllers: [OwnerController],
@@ -21,6 +22,7 @@ import { PropertyModule } from '../property/property.module';
     }),
     UserModule,
     PropertyModule,
+    RoomModule,
   ],
 })
 export class OwnerModule {}

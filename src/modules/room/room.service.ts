@@ -3,9 +3,15 @@
 /* eslint-disable function-paren-newline */
 /* eslint-disable implicit-arrow-linebreak */
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateRoomTypeDto } from './dto/create-room-type.dto';
+import { CreateRoomDto } from './dto/create-room.dto';
+import { Room } from './interfaces/room.interface';
 
 @Injectable()
 export class RoomService {
@@ -68,5 +74,35 @@ export class RoomService {
         this.createRoomType(createRoomTypeDto),
       ),
     );
+  }
+
+  async addRoom(
+    roomData: CreateRoomDto,
+    ownerId: number,
+    propertyId: number,
+  ): Promise<Room> {
+    const property = await this.prismaService.property.findUnique({
+      where: { id: propertyId },
+      include: { owner: true },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    if (property.owner.id !== ownerId) {
+      throw new UnauthorizedException(
+        'You are not authorized to delete this property',
+      );
+    }
+
+    const createdRoom = await this.prismaService.room.create({
+      data: {
+        ...roomData,
+        propertyId,
+      },
+    });
+
+    return createdRoom;
   }
 }
