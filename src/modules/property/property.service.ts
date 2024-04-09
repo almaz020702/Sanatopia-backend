@@ -9,6 +9,8 @@ import { PropertyCreateRespnse } from './interfaces/property-create-response.int
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { Property } from './interfaces/property.interface';
+import { Room } from '../room/interfaces/room.interface';
+import { RoomsPaginationQueryDto } from '../room/dto/rooms-pagination.dto';
 
 @Injectable()
 export class PropertyService {
@@ -86,5 +88,35 @@ export class PropertyService {
     });
 
     return deletedProperty;
+  }
+
+  async getPropertyRooms(
+    propertyId: number,
+    ownerId: number,
+    paginationDto: RoomsPaginationQueryDto,
+  ): Promise<Room[]> {
+    const offset = (paginationDto.page - 1) * paginationDto.limit;
+
+    const property = await this.prismaService.property.findUnique({
+      where: { id: propertyId },
+      include: {
+        rooms: {
+          include: { roomType: true },
+          skip: offset,
+          take: paginationDto.limit,
+        },
+        owner: true,
+      },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    if (property.owner.id !== ownerId) {
+      throw new UnauthorizedException('Unauthorized access to property rooms');
+    }
+
+    return property.rooms;
   }
 }

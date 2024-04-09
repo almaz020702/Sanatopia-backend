@@ -10,6 +10,7 @@ import {
   Param,
   Put,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -23,6 +24,8 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UpdatePropertyDto } from '../property/dto/update-property.dto';
 import { PropertyService } from '../property/property.service';
+import { Room } from '../room/interfaces/room.interface';
+import { RoomsPaginationQueryDto } from '../room/dto/rooms-pagination.dto';
 
 @ApiTags('Owner')
 @Controller('owner')
@@ -77,5 +80,20 @@ export class OwnerController {
     @Param('id') propertyId: number,
   ): Promise<Property> {
     return this.propertyService.deleteProperty(propertyId, userId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Get('/:propertyId/rooms')
+  async getPropertyRooms(
+    @UserId() userId: number,
+    @Param('propertyId') propertyId: number,
+    @Query() paginationDto: RoomsPaginationQueryDto,
+  ): Promise<Room[]> {
+    return this.propertyService.getPropertyRooms(
+      propertyId,
+      userId,
+      paginationDto,
+    );
   }
 }

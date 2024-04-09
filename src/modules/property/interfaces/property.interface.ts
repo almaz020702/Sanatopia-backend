@@ -13,7 +13,7 @@ export interface Property {
   contactName: string;
   contactPhone: string;
   status: $Enums.PropertyStatus;
-  owner: Owner;
+  owner?: Owner;
   //   rooms: Room[];
   //   propertyPhotos: PropertyPhoto[];
   //   propertyServices: PropertyService[];
