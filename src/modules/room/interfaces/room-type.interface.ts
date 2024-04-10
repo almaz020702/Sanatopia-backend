@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import { Property } from 'src/modules/property/interfaces/property.interface';
 import { Room } from './room.interface';
 
@@ -11,5 +12,5 @@ export interface RoomType {
   capacity: number;
   property?: Property;
   rooms?: Room[];
-  // roomTypeFacilities: RoomTypeFacility[];
+  // roomTypeFacilities?: RoomTypeFacility[];
 }

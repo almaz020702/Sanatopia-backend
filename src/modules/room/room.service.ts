@@ -12,6 +12,8 @@ import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateRoomTypeDto } from './dto/create-room-type.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { Room } from './interfaces/room.interface';
+import { UpdateRoomTypeDto } from './dto/update-room-type.dto';
+import { RoomType } from './interfaces/room-type.interface';
 
 @Injectable()
 export class RoomService {
@@ -127,5 +129,34 @@ export class RoomService {
     }
 
     return room;
+  }
+
+  async updateRoomType(
+    propertyId: number,
+    roomTypeId: number,
+    updateRoomTypeDto: UpdateRoomTypeDto,
+    ownerId: number,
+  ): Promise<RoomType | null> {
+    const roomType = await this.prismaService.roomType.findUnique({
+      where: { id: roomTypeId },
+      include: { property: true },
+    });
+
+    if (!roomType || roomType.propertyId !== propertyId) {
+      throw new NotFoundException('RoomType not found');
+    }
+
+    if (roomType.property.ownerId !== ownerId) {
+      throw new UnauthorizedException(
+        'You are not authorized to delete this property',
+      );
+    }
+
+    const updatedRoomType = await this.prismaService.roomType.update({
+      where: { id: roomTypeId },
+      data: updateRoomTypeDto,
+    });
+
+    return updatedRoomType;
   }
 }

@@ -28,6 +28,8 @@ import { Room } from '../room/interfaces/room.interface';
 import { RoomsPaginationQueryDto } from '../room/dto/rooms-pagination.dto';
 import { RoomService } from '../room/room.service';
 import { CreateRoomDto } from '../room/dto/create-room.dto';
+import { UpdateRoomTypeDto } from '../room/dto/update-room-type.dto';
+import { RoomType } from '../room/interfaces/room-type.interface';
 
 @ApiTags('Owner')
 @Controller('owner')
@@ -120,5 +122,22 @@ export class OwnerController {
     @UserId() userId: number,
   ): Promise<Room | null> {
     return this.roomService.getRoomDetails(propertyId, roomId, userId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Put(':propertyId/room-types/:roomTypeId')
+  async updateRoomType(
+    @Param('propertyId') propertyId: number,
+    @Param('roomTypeId') roomTypeId: number,
+    @Body() updateRoomTypeDto: UpdateRoomTypeDto,
+    @UserId() userId: number,
+  ): Promise<RoomType> {
+    return this.roomService.updateRoomType(
+      propertyId,
+      roomTypeId,
+      updateRoomTypeDto,
+      userId,
+    );
   }
 }
