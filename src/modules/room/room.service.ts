@@ -172,4 +172,35 @@ export class RoomService {
 
     return property.roomTypes;
   }
+
+  async deleteRoom(
+    propertyId: number,
+    roomId: number,
+    ownerId: number,
+  ): Promise<void> {
+    const property = await this.prismaService.property.findUnique({
+      where: { id: propertyId },
+      select: { owner: true },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    if (property.owner.id !== ownerId) {
+      throw new UnauthorizedException('Unauthorized access to property rooms');
+    }
+
+    const room = await this.prismaService.room.findFirst({
+      where: { id: roomId, propertyId },
+    });
+
+    if (!room) {
+      throw new NotFoundException('Room not found');
+    }
+
+    await this.prismaService.room.delete({
+      where: { id: roomId },
+    });
+  }
 }
