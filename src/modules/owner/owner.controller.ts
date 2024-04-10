@@ -140,4 +140,13 @@ export class OwnerController {
       userId,
     );
   }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Get(':propertyId/room-types')
+  async getRoomTypes(
+    @Param('propertyId') propertyId: number,
+  ): Promise<RoomType[]> {
+    return this.roomService.getRoomTypes(propertyId);
+  }
 }

@@ -159,4 +159,17 @@ export class RoomService {
 
     return updatedRoomType;
   }
+
+  async getRoomTypes(propertyId: number): Promise<RoomType[]> {
+    const property = await this.prismaService.property.findUnique({
+      where: { id: propertyId },
+      include: { roomTypes: true },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    return property.roomTypes;
+  }
 }
