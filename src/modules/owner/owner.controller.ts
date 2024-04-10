@@ -30,6 +30,7 @@ import { RoomService } from '../room/room.service';
 import { CreateRoomDto } from '../room/dto/create-room.dto';
 import { UpdateRoomTypeDto } from '../room/dto/update-room-type.dto';
 import { RoomType } from '../room/interfaces/room-type.interface';
+import { CreateRoomTypeDto } from '../room/dto/create-room-type.dto';
 
 @ApiTags('Owner')
 @Controller('owner')
@@ -148,5 +149,14 @@ export class OwnerController {
     @Param('propertyId') propertyId: number,
   ): Promise<RoomType[]> {
     return this.roomService.getRoomTypes(propertyId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Post(':propertyId/room-types')
+  async addRoomType(
+    @Body() roomTypeData: CreateRoomTypeDto,
+  ): Promise<RoomType> {
+    return this.roomService.createRoomType(roomTypeData);
   }
 }
