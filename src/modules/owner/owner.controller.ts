@@ -110,4 +110,15 @@ export class OwnerController {
   ): Promise<Room> {
     return this.roomService.addRoom(roomData, userId, propertyId);
   }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Get(':propertyId/rooms/:roomId')
+  async getPropertyRoomDetails(
+    @Param('propertyId') propertyId: number,
+    @Param('roomId') roomId: number,
+    @UserId() userId: number,
+  ): Promise<Room | null> {
+    return this.roomService.getRoomDetails(propertyId, roomId, userId);
+  }
 }

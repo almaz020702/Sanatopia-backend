@@ -105,4 +105,27 @@ export class RoomService {
 
     return createdRoom;
   }
+
+  async getRoomDetails(
+    propertyId: number,
+    roomId: number,
+    ownerId: number,
+  ): Promise<Room | null> {
+    const room = await this.prismaService.room.findUnique({
+      where: { id: roomId },
+      include: { property: true, roomType: true },
+    });
+
+    if (!room || room.propertyId !== propertyId) {
+      throw new NotFoundException('Room not found');
+    }
+
+    if (room.property.ownerId !== ownerId) {
+      throw new UnauthorizedException(
+        'You are not authorized to delete this property',
+      );
+    }
+
+    return room;
+  }
 }
