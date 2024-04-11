@@ -7,6 +7,7 @@ import { AuthModule } from '../auth/auth.module';
 import { UserModule } from '../user/user.module';
 import { PropertyModule } from '../property/property.module';
 import { RoomModule } from '../room/room.module';
+import { BookingModule } from '../booking/booking.module';
 
 @Module({
   controllers: [OwnerController],
@@ -23,6 +24,7 @@ import { RoomModule } from '../room/room.module';
     UserModule,
     PropertyModule,
     RoomModule,
+    BookingModule,
   ],
 })
 export class OwnerModule {}
