@@ -32,8 +32,12 @@ import { UpdateRoomTypeDto } from '../room/dto/update-room-type.dto';
 import { RoomType } from '../room/interfaces/room-type.interface';
 import { CreateRoomTypeDto } from '../room/dto/create-room-type.dto';
 import { Booking } from '../booking/interfaces/booking.interface';
-import { GetBookingResponse } from '../booking/interfaces/booking-response.interface';
+import {
+  CreateBookingResponse,
+  GetBookingResponse,
+} from '../booking/interfaces/booking-response.interface';
 import { BookingService } from '../booking/booking.service';
+import { CreateBookingDto } from '../booking/dto/create-booking.dto';
 
 @ApiTags('Owner')
 @Controller('owner')
@@ -200,5 +204,15 @@ export class OwnerController {
     @Param('bookingId') bookingId: number,
   ): Promise<GetBookingResponse> {
     return this.bookingService.getBookingById(bookingId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Post('/bookings')
+  async createBooking(
+    @UserId() ownerId: number,
+    @Body() createBookingData: CreateBookingDto,
+  ): Promise<CreateBookingResponse> {
+    return this.bookingService.createBooking(ownerId, createBookingData);
   }
 }
