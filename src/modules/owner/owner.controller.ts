@@ -170,4 +170,15 @@ export class OwnerController {
   ): Promise<void> {
     this.roomService.deleteRoom(propertyId, roomId, userId);
   }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Delete(':propertyId/room-types/:roomTypeId')
+  async deleteRoomType(
+    @Param('propertyId') propertyId: number,
+    @Param('roomTypeId') roomTypeId: number,
+    @UserId() userId: number,
+  ): Promise<void> {
+    this.roomService.deleteRoomType(propertyId, roomTypeId, userId);
+  }
 }
