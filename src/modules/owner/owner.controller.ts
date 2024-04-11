@@ -31,6 +31,7 @@ import { CreateRoomDto } from '../room/dto/create-room.dto';
 import { UpdateRoomTypeDto } from '../room/dto/update-room-type.dto';
 import { RoomType } from '../room/interfaces/room-type.interface';
 import { CreateRoomTypeDto } from '../room/dto/create-room-type.dto';
+import { Booking } from '../booking/interfaces/booking.interface';
 
 @ApiTags('Owner')
 @Controller('owner')
@@ -180,5 +181,12 @@ export class OwnerController {
     @UserId() userId: number,
   ): Promise<void> {
     this.roomService.deleteRoomType(propertyId, roomTypeId, userId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Get('/bookings')
+  async getOwnerBookings(@UserId() ownerId: number): Promise<Booking[]> {
+    return this.ownerService.getOwnerBookings(ownerId);
   }
 }

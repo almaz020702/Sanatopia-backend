@@ -11,6 +11,7 @@ import { AuthService } from '../auth/auth.service';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { AuthResponse } from '../auth/interfaces/auth-response.interface';
 import { Property } from '../property/interfaces/property.interface';
+import { Booking } from '../booking/interfaces/booking.interface';
 
 @Injectable()
 export class OwnerService {
@@ -66,5 +67,17 @@ export class OwnerService {
     }
 
     return property;
+  }
+
+  async getOwnerBookings(ownerId: number): Promise<Booking[]> {
+    const bookings = await this.prismaService.booking.findMany({
+      where: { room: { property: { ownerId } } },
+    });
+
+    if (!bookings || bookings.length === 0) {
+      throw new NotFoundException('No bookings found for the owner');
+    }
+
+    return bookings;
   }
 }
