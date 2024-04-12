@@ -38,6 +38,7 @@ import {
 } from '../booking/interfaces/booking-response.interface';
 import { BookingService } from '../booking/booking.service';
 import { CreateBookingDto } from '../booking/dto/create-booking.dto';
+import { UpdateBookingDto } from '../booking/dto/update-booking.dto';
 
 @ApiTags('Owner')
 @Controller('owner')
@@ -214,5 +215,20 @@ export class OwnerController {
     @Body() createBookingData: CreateBookingDto,
   ): Promise<CreateBookingResponse> {
     return this.bookingService.createBooking(ownerId, createBookingData);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Post('/bookings/:bookingId')
+  async updateBooking(
+    @UserId() ownerId: number,
+    @Body() newBookingData: UpdateBookingDto,
+    @Param('bookingId') bookingId: number,
+  ): Promise<CreateBookingResponse> {
+    return this.bookingService.updateBooking(
+      bookingId,
+      ownerId,
+      newBookingData,
+    );
   }
 }

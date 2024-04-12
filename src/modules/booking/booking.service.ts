@@ -140,14 +140,14 @@ export class BookingService {
   ): Promise<CreateBookingResponse> {
     const booking = await this.prismaService.booking.findUnique({
       where: { id },
-      include: { room: true, user: true },
+      include: { room: { include: { property: true } }, user: true },
     });
 
     if (!booking) {
       throw new NotFoundException('Booking not found');
     }
 
-    if (booking.userId !== userId) {
+    if (booking.userId !== userId && booking.room.property.ownerId !== userId) {
       throw new BadRequestException(
         'You are not authorized to update this booking',
       );
