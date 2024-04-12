@@ -16,6 +16,7 @@ import { Response } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { $Enums } from '@prisma/client';
 import { OwnerService } from './owner.service';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { AuthResponse } from '../auth/interfaces/auth-response.interface';
@@ -230,5 +231,16 @@ export class OwnerController {
       ownerId,
       newBookingData,
     );
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('OWNER')
+  @Put('bookings/:bookingId/status')
+  async updateBookingStatus(
+    @UserId() ownerId: number,
+    @Param('bookingId') bookingId: number,
+    @Body('status') status: $Enums.BookingStatus,
+  ): Promise<Booking> {
+    return this.bookingService.updateBookingStatus(ownerId, bookingId, status);
   }
 }
