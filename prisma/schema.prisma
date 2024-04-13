@@ -189,5 +189,6 @@ model Service {
 model Treatment {
   id                 Int                  @id @default(autoincrement())
   name               String               @db.VarChar()
+  slug             String             @db.VarChar()
   propertyTreatments PropertyTreatments[]
 }

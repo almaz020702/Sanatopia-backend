@@ -17,6 +17,8 @@ import { PropertyModule } from './modules/property/property.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { CityModule } from './modules/city/city.module';
 import { PhotoModule } from './modules/photo/photo.module';
+import { ServiceModule } from './modules/service/service.module';
+import { TreatmentModule } from './modules/treatment/treatment.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { PhotoModule } from './modules/photo/photo.module';
     BookingModule,
     CityModule,
     PhotoModule,
+    ServiceModule,
+    TreatmentModule,
   ],
   controllers: [AppController],
   providers: [
