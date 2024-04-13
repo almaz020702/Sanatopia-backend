@@ -93,12 +93,16 @@ export class AuthService {
     res: Response,
   ): void {
     res.cookie('accessToken', tokens.accessToken, {
-      maxAge: 15 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
+      secure: true,
+      sameSite: 'none',
     });
     res.cookie('refreshToken', tokens.refreshToken, {
       maxAge: 60 * 60 * 1000 * 24,
       httpOnly: true,
+      secure: true,
+      sameSite: 'none',
     });
   }
 

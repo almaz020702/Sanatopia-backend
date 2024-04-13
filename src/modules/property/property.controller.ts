@@ -19,6 +19,6 @@ export class PropertyController {
     @Body() propertyData: CreatePropertyDto,
     @UserId() userId: number,
   ) {
-    return this.propertyService.create(propertyData, userId);
+    return this.propertyService.createProperty(propertyData, userId);
   }
 }

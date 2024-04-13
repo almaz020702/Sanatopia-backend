@@ -16,7 +16,7 @@ import { RoomsPaginationQueryDto } from '../room/dto/rooms-pagination.dto';
 export class PropertyService {
   constructor(private prismaService: PrismaService) {}
 
-  async create(
+  async createProperty(
     propertyData: CreatePropertyDto,
     ownerId: number,
   ): Promise<PropertyCreateRespnse> {
@@ -27,13 +27,37 @@ export class PropertyService {
     ) {
       throw new BadRequestException(' property with such name already exists');
     }
+
+    const {
+      treatments,
+      services,
+      ...propertyDataWithoutTreatmentsAndFacilities
+    } = propertyData;
+
     const property = await this.prismaService.property.create({
-      data: { ...propertyData, ownerId },
+      data: {
+        ...propertyDataWithoutTreatmentsAndFacilities,
+        ownerId,
+        propertyTreatments: {
+          createMany: {
+            data: treatments?.map((treatmentId) => ({
+              treatmentId,
+            })),
+          },
+        },
+        propertyServices: {
+          createMany: {
+            data: services?.map((facilityId) => ({
+              serviceId: facilityId,
+            })),
+          },
+        },
+      },
     });
     return {
       propertyId: property.id,
       ownerId,
-      message: 'you registered property succesfully',
+      message: 'You registered the property successfully',
     };
   }
 
