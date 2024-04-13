@@ -4,7 +4,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { $Enums, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import {
@@ -13,6 +13,7 @@ import {
 } from './interfaces/booking-response.interface';
 import { Room } from '../room/interfaces/room.interface';
 import { UpdateBookingDto } from './dto/update-booking.dto';
+import { Booking } from './interfaces/booking.interface';
 
 @Injectable()
 export class BookingService {
@@ -140,14 +141,14 @@ export class BookingService {
   ): Promise<CreateBookingResponse> {
     const booking = await this.prismaService.booking.findUnique({
       where: { id },
-      include: { room: true, user: true },
+      include: { room: { include: { property: true } }, user: true },
     });
 
     if (!booking) {
       throw new NotFoundException('Booking not found');
     }
 
-    if (booking.userId !== userId) {
+    if (booking.userId !== userId && booking.room.property.ownerId !== userId) {
       throw new BadRequestException(
         'You are not authorized to update this booking',
       );
@@ -219,5 +220,41 @@ export class BookingService {
     }
 
     await this.prismaService.booking.delete({ where: { id } });
+  }
+
+  async updateBookingStatus(
+    ownerId: number,
+    bookingId: number,
+    status: $Enums.BookingStatus,
+  ): Promise<Booking> {
+    const booking = await this.prismaService.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        room: { include: { property: true } },
+      },
+    });
+
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    if (booking.room.property.ownerId !== ownerId) {
+      throw new UnauthorizedException(
+        'Unauthorized access to update booking status',
+      );
+    }
+
+    return this.prismaService.booking.update({
+      where: { id: bookingId },
+      data: {
+        status,
+      },
+      include: {
+        user: true,
+        room: true,
+        propertyServices: true,
+        propertyTreatments: true,
+      },
+    });
   }
 }

@@ -1,10 +1,17 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { Response } from 'express';
 import { UserRoleType } from '../user/enums/user-role.enum';
 import { AuthService } from '../auth/auth.service';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { AuthResponse } from '../auth/interfaces/auth-response.interface';
+import { Property } from '../property/interfaces/property.interface';
+import { Booking } from '../booking/interfaces/booking.interface';
 
 @Injectable()
 export class OwnerService {
@@ -28,5 +35,49 @@ export class OwnerService {
       data: { userId: user.user.id, roleId: role.id },
     });
     return user;
+  }
+
+  async getOwnerProperties(ownerId: number): Promise<Property[]> {
+    const properties = await this.prismaService.property.findMany({
+      where: { ownerId },
+      include: { owner: true },
+    });
+
+    if (!properties || properties.length === 0) {
+      throw new NotFoundException('No properties found for the owner');
+    }
+
+    return properties;
+  }
+
+  async getPropertyById(ownerId: number, id: number): Promise<Property> {
+    const property = await this.prismaService.property.findUnique({
+      where: { id },
+      include: { owner: true },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    if (property.owner.id !== ownerId) {
+      throw new UnauthorizedException(
+        'You are not authorized to access this property',
+      );
+    }
+
+    return property;
+  }
+
+  async getOwnerBookings(ownerId: number): Promise<Booking[]> {
+    const bookings = await this.prismaService.booking.findMany({
+      where: { room: { property: { ownerId } } },
+    });
+
+    if (!bookings || bookings.length === 0) {
+      throw new NotFoundException('No bookings found for the owner');
+    }
+
+    return bookings;
   }
 }

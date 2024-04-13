@@ -107,7 +107,7 @@ model Room {
   id          Int       @id @default(autoincrement())
   roomTypeId  Int
   propertyId  Int
-  roomType    RoomType  @relation(fields: [roomTypeId], references: [id])
+  roomType    RoomType  @relation(fields: [roomTypeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   bookings    Booking[]
 }
@@ -130,7 +130,7 @@ model RoomTypeFacility {
   roomTypeId Int
   facilityId Int
   facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  roomType   RoomType @relation(fields: [roomTypeId], references: [id])
+  roomType   RoomType @relation(fields: [roomTypeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   @@unique([roomTypeId, facilityId])
 }
 
