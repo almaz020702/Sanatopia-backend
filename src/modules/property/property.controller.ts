@@ -1,6 +1,14 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable @typescript-eslint/indent */
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreatePropertyDto } from './dto/create-property.dto';
@@ -27,5 +35,11 @@ export class PropertyController {
   @Get()
   async getProperties(@Query() searchProperties?: SearchPropertiesDto) {
     return this.propertyService.getProperties(searchProperties);
+  }
+
+  @ApiOperation({ summary: 'Getting property by ID' })
+  @Get('/:propertyId')
+  async getPropertyById(@Param('propertyId') propertyId: number) {
+    return this.propertyService.getPropertyById(propertyId);
   }
 }

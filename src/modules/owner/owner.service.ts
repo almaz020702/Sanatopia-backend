@@ -53,7 +53,7 @@ export class OwnerService {
   async getPropertyById(ownerId: number, id: number): Promise<Property> {
     const property = await this.prismaService.property.findUnique({
       where: { id },
-      include: { owner: true },
+      include: { owner: true, roomTypes: true },
     });
 
     if (!property) {

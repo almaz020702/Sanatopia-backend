@@ -249,4 +249,18 @@ export class PropertyService {
 
     return property.rooms;
   }
+
+  async getPropertyById(propertyId: number) {
+    const property = await this.prismaService.property.findUnique({
+      where: { id: propertyId },
+      include: {
+        roomTypes: true,
+        propertyServices: { select: { service: true } },
+        propertyTreatments: { select: { treatment: true } },
+        propertyPhotos: { select: { photo: { select: { url: true } } } },
+      },
+    });
+
+    return property;
+  }
 }

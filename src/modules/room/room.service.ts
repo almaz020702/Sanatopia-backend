@@ -163,7 +163,11 @@ export class RoomService {
   async getRoomTypes(propertyId: number): Promise<RoomType[]> {
     const property = await this.prismaService.property.findUnique({
       where: { id: propertyId },
-      include: { roomTypes: true },
+      include: {
+        roomTypes: {
+          include: { roomTypeFacilities: { select: { facility: true } } },
+        },
+      },
     });
 
     if (!property) {
@@ -235,5 +239,16 @@ export class RoomService {
     await this.prismaService.roomType.delete({
       where: { id: roomTypeId },
     });
+  }
+
+  async getRoomTypeById(roomTypeId: number) {
+    const roomType = await this.prismaService.roomType.findUnique({
+      where: { id: roomTypeId },
+      include: {
+        roomTypeFacilities: { select: { facility: true } },
+      },
+    });
+
+    return roomType;
   }
 }
