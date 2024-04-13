@@ -15,6 +15,11 @@ export class CreatePropertyDto {
   address: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  cityId: number;
+
+  @ApiProperty()
   @IsString()
   postalCode: string;
 
