@@ -1,7 +1,7 @@
 // create-property.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsEnum, IsString } from 'class-validator';
-import { PropertyType } from '../enums/property-type.enum';
+import { IsNotEmpty, IsEnum, IsString, IsArray } from 'class-validator';
+import { $Enums } from '@prisma/client';
 
 export class CreatePropertyDto {
   @ApiProperty()
@@ -13,6 +13,10 @@ export class CreatePropertyDto {
   @IsNotEmpty()
   @IsString()
   address: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  cityId: number;
 
   @ApiProperty()
   @IsString()
@@ -30,8 +34,15 @@ export class CreatePropertyDto {
   @IsString()
   contactPhone: string;
 
-  @ApiProperty({ enum: PropertyType, enumName: 'PropertyType' })
+  @ApiProperty()
   @IsNotEmpty()
-  @IsEnum(PropertyType)
-  propertyType: PropertyType;
+  propertyType: $Enums.PropertyType;
+
+  @ApiProperty()
+  @IsArray()
+  treatments: number[]
+
+  @ApiProperty()
+  @IsArray()
+  services: number[]
 }

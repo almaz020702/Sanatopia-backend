@@ -48,6 +48,8 @@ export class UserService {
         lastName: true,
         phoneNumber: true,
         isActivated: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
     if (!user) {
