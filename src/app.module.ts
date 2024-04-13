@@ -16,6 +16,7 @@ import { OwnerModule } from './modules/owner/owner.module';
 import { PropertyModule } from './modules/property/property.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { CityModule } from './modules/city/city.module';
+import { PhotoModule } from './modules/photo/photo.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CityModule } from './modules/city/city.module';
     PropertyModule,
     BookingModule,
     CityModule,
+    PhotoModule,
   ],
   controllers: [AppController],
   providers: [

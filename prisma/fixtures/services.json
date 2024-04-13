@@ -1,42 +1,52 @@
 [
     {
         "id":1,
-        "name":"WIFI"
+        "name":"WIFI",
+        "slug": "wifi"
     },
     {
         "id":2,
-        "name":"Бассейн"
+        "name":"Бассейн",
+        "slug": "pool"
     },
     {
         "id":3,
-        "name":"Тренажерный зал"
+        "name":"Тренажерный зал",
+        "slug": "gym"
     },
     {
         "id":4,
-        "name":"Игровая площадка"
+        "name":"Игровая площадка",
+        "slug": "playground"
     },
     {
         "id":5,
-        "name":"Трансфер"
+        "name":"Трансфер",
+        "slug": "transfer"
     },
     {
         "id":6,
-        "name":"СПА"
+        "name":"СПА",
+        "slug": "spa"
     },
     {
         "id":7,
-        "name":"Сауна"
+        "name":"Сауна",
+        "slug": "sauna"
     },
     {
         "id":8,
-        "name":"Паркинг"
+        "name":"Паркинг",
+        "slug": "parking"
     },
     {
         "id":9,
-        "name":"Ресторан"
+        "name":"Ресторан",
+        "slug": "restaurant"
     },
     {
         "id":10,
-        "name":"Парк"
+        "name":"Парк",
+        "slug": "park"
     }
 ]
