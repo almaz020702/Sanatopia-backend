@@ -156,7 +156,7 @@ model PropertyServices {
   id         Int      @id @default(autoincrement())
   propertyId Int
   serviceId  Int
-  price      Float
+  price      Float    @default(0)
   bookingId  Int?
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   service    Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -169,7 +169,7 @@ model PropertyTreatments {
   id          Int       @id @default(autoincrement())
   propertyId  Int
   treatmentId Int
-  price       Float
+  price       Float     @default(0)
   bookingId   Int?
   property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   treatment   Treatment @relation(fields: [treatmentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
