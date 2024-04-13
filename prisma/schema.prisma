@@ -109,6 +109,7 @@ model Photo {
 model Facility {
   id                 Int                @id @default(autoincrement())
   name               String             @db.VarChar()
+  slug               String             @db.VarChar()
   roomTypeFacilities RoomTypeFacility[]
 }
 
@@ -180,12 +181,13 @@ model PropertyTreatments {
 
 model Service {
   id               Int                @id @default(autoincrement())
-  name             String
+  name             String             @db.VarChar()
+  slug             String             @db.VarChar()
   propertyServices PropertyServices[]
 }
 
 model Treatment {
   id                 Int                  @id @default(autoincrement())
-  name               String
+  name               String               @db.VarChar()
   propertyTreatments PropertyTreatments[]
 }
