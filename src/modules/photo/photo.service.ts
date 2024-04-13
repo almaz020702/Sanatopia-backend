@@ -63,4 +63,56 @@ export class PhotoService {
       message: 'Photo uploaded successfully',
     };
   }
+
+  async uploadRoomTypePhotos(roomTypeId: number, file: Express.Multer.File) {
+    const roomType = await this.prismaService.roomType.findUnique({
+      where: { id: roomTypeId },
+    });
+
+    if (!roomType) {
+      throw new NotFoundException('Room Type not found');
+    }
+
+    const uploadDirectory = './uploads';
+
+    if (!fs.existsSync(uploadDirectory)) {
+      fs.mkdirSync(uploadDirectory, { recursive: true });
+    }
+    const imageFolderPath = path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'uploads',
+    );
+    const fileName = `${uuidv4()}.jpg`;
+    const filePath = path.join(imageFolderPath, fileName);
+
+    try {
+      fs.writeFileSync(filePath, file.buffer);
+    } catch (error) {
+      console.error('Error saving the image:', error);
+      throw new InternalServerErrorException('Image could not be saved');
+    }
+
+    const createdPhoto = await this.prismaService.photo.create({
+      data: {
+        url: `/uploads/${fileName}`,
+      },
+    });
+
+    await this.prismaService.roomTypePhoto.create({
+      data: {
+        roomType: { connect: { id: roomTypeId } },
+        photo: { connect: { id: createdPhoto.id } },
+      },
+    });
+
+    return {
+      photoId: createdPhoto.id,
+      roomTypeId,
+      message: 'Photo uploaded successfully',
+    };
+  }
 }

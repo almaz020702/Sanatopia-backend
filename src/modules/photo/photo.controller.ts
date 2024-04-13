@@ -21,4 +21,13 @@ export class PhotoController {
   ) {
     return this.photoService.uploadPhoto(propertyId, file);
   }
+
+  @Post('/room-type/:propertyId')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadRoomTypePhoto(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('propertyId') roomTypeId: number,
+  ) {
+    return this.photoService.uploadRoomTypePhotos(roomTypeId, file);
+  }
 }
