@@ -1,3 +1,4 @@
+/* eslint-disable object-curly-newline */
 import {
   BadRequestException,
   Injectable,
@@ -11,10 +12,53 @@ import { UpdatePropertyDto } from './dto/update-property.dto';
 import { Property } from './interfaces/property.interface';
 import { Room } from '../room/interfaces/room.interface';
 import { RoomsPaginationQueryDto } from '../room/dto/rooms-pagination.dto';
+import { SearchPropertiesDto } from './dto/search-properties.dto';
 
 @Injectable()
 export class PropertyService {
   constructor(private prismaService: PrismaService) {}
+
+  async getProperties(searchProperties: SearchPropertiesDto) {
+    const { cityId, checkIn, checkOut, capacity } = searchProperties;
+    const properties = await this.prismaService.property.findMany({
+      where: {
+        city: {
+          id: cityId,
+        },
+        rooms: {
+          some: {
+            AND: [
+              {
+                roomType: {
+                  capacity: {
+                    gte: capacity,
+                  },
+                },
+                bookings: {
+                  none: {
+                    AND: [
+                      { checkIn: { lte: checkOut } },
+                      { checkOut: { gte: checkIn } },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      include: { roomTypes: { select: { pricePerDay: true } } },
+    });
+
+    const propertiesWithMinPricePerDay = properties.map((property) => {
+      const minPricePerDay = Math.min(
+        ...property.roomTypes.map((roomType) => roomType.pricePerDay),
+      );
+      return { ...property, minPricePerDay };
+    });
+
+    return propertiesWithMinPricePerDay;
+  }
 
   async createProperty(
     propertyData: CreatePropertyDto,
