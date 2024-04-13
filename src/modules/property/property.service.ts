@@ -37,8 +37,8 @@ export class PropertyService {
                 bookings: {
                   none: {
                     AND: [
-                      { checkIn: { lte: checkOut } },
-                      { checkOut: { gte: checkIn } },
+                      { checkIn: { lt: checkOut } },
+                      { checkOut: { gt: checkIn } },
                     ],
                   },
                 },
