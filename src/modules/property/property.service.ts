@@ -1,3 +1,5 @@
+/* eslint-disable prefer-const */
+/* eslint-disable operator-linebreak */
 /* eslint-disable object-curly-newline */
 import {
   BadRequestException,
@@ -19,35 +21,77 @@ export class PropertyService {
   constructor(private prismaService: PrismaService) {}
 
   async getProperties(searchProperties: SearchPropertiesDto) {
-    const { cityId, checkIn, checkOut, capacity } = searchProperties;
-    const properties = await this.prismaService.property.findMany({
-      where: {
-        city: {
-          id: cityId,
-        },
-        rooms: {
-          some: {
-            AND: [
-              {
-                roomType: {
-                  capacity: {
-                    gte: capacity,
-                  },
-                },
-                bookings: {
-                  none: {
-                    AND: [
-                      { checkIn: { lt: checkOut } },
-                      { checkOut: { gt: checkIn } },
-                    ],
-                  },
-                },
-              },
-            ],
+    const { cityId, checkIn, checkOut, capacity, propertyType, sort } =
+      searchProperties;
+
+    const where: any = {};
+
+    if (propertyType) {
+      where.propertyType = propertyType;
+    }
+
+    if (cityId) {
+      where.city = {
+        id: cityId,
+      };
+    }
+
+    if (capacity && (!checkIn || !checkOut)) {
+      where.rooms = {
+        some: {
+          roomType: {
+            capacity: {
+              gte: capacity,
+            },
           },
         },
+      };
+    } else if (!capacity && checkIn && checkOut) {
+      where.rooms = {
+        some: {
+          bookings: {
+            none: {
+              AND: [
+                { checkIn: { lt: checkOut } },
+                { checkOut: { gt: checkIn } },
+              ],
+            },
+          },
+        },
+      };
+    } else if (capacity && checkIn && checkOut) {
+      where.rooms = {
+        some: {
+          AND: [
+            {
+              roomType: {
+                capacity: {
+                  gte: capacity,
+                },
+              },
+              bookings: {
+                none: {
+                  AND: [
+                    { checkIn: { lt: checkOut } },
+                    { checkOut: { gt: checkIn } },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      };
+    }
+
+    const orderBy = this.getOrderBy(sort);
+
+    const properties = await this.prismaService.property.findMany({
+      where,
+      orderBy,
+      include: {
+        roomTypes: { select: { pricePerDay: true } },
+        propertyPhotos: { select: { photo: { select: { url: true } } } },
       },
-      include: { roomTypes: { select: { pricePerDay: true } } },
     });
 
     const propertiesWithMinPricePerDay = properties.map((property) => {
@@ -58,6 +102,24 @@ export class PropertyService {
     });
 
     return propertiesWithMinPricePerDay;
+  }
+
+  private getOrderBy(sort: string): Record<string, 'asc' | 'desc'> | undefined {
+    if (!sort) {
+      return undefined;
+    }
+
+    const allowedSortFields = ['name', 'price', 'createdAt', 'rating'];
+
+    const [field, order] = sort.split(':');
+
+    if (allowedSortFields.includes(field) && ['asc', 'desc'].includes(order)) {
+      let dynamicOrder = {};
+      dynamicOrder[field] = order;
+      return dynamicOrder;
+    }
+
+    return undefined;
   }
 
   async createProperty(

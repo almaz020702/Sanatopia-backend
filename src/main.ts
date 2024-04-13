@@ -17,8 +17,12 @@ async function bootstrap() {
   SwaggerModule.setup('/api/docs', app, document);
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:8081'], // Replace with the origin(s) of your frontend
-    credentials: true, // Enable credentials (cookies, authorization headers)
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:8081',
+      'http://localhost:3001',
+    ],
+    credentials: true,
   });
 
   app.setGlobalPrefix('/api');

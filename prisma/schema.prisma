@@ -18,6 +18,8 @@ model User {
   lastName    String?     @db.VarChar()
   phoneNumber String?     @db.VarChar()
   isActivated Boolean     @default(false)
+  createdAt   DateTime?   @default(now())
+  updatedAt   DateTime?   @updatedAt
   bookings    Booking[]
   userRoles   UserRoles[]
   properties  Property[]
@@ -189,6 +191,6 @@ model Service {
 model Treatment {
   id                 Int                  @id @default(autoincrement())
   name               String               @db.VarChar()
-  slug             String             @db.VarChar()
+  slug               String               @db.VarChar()
   propertyTreatments PropertyTreatments[]
 }
