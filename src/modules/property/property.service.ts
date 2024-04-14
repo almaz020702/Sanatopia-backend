@@ -187,10 +187,40 @@ export class PropertyService {
       );
     }
 
+    const { services, treatments, ...rest } = updatePropertyDto;
+
+    const dataToUpdate: any = { ...rest };
+
+    if (services !== undefined) {
+      dataToUpdate.propertyServices = {
+        createMany: {
+          data: services.map((serviceId) => ({
+            serviceId,
+            price: 0,
+          })),
+        },
+      };
+    }
+
+    if (treatments !== undefined) {
+      dataToUpdate.propertyTreatments = {
+        createMany: {
+          data: treatments.map((treatmentId) => ({
+            treatmentId,
+            price: 0,
+          })),
+        },
+      };
+    }
+
     const updatedProperty = await this.prismaService.property.update({
       where: { id },
-      data: updatePropertyDto,
-      include: { owner: true },
+      data: dataToUpdate,
+      include: {
+        owner: true,
+        propertyServices: { select: { service: true } },
+        propertyTreatments: { select: { treatment: true } },
+      },
     });
 
     return updatedProperty;
@@ -258,9 +288,15 @@ export class PropertyService {
         propertyServices: { select: { service: true } },
         propertyTreatments: { select: { treatment: true } },
         propertyPhotos: { select: { photo: { select: { url: true } } } },
+        city: { select: { name: true } },
+        owner: { select: { firstName: true, lastName: true, email: true } },
       },
     });
 
-    return property;
+    const minPricePerDay = Math.min(
+      ...property.roomTypes.map((roomType) => roomType.pricePerDay),
+    );
+
+    return { ...property, minPricePerDay };
   }
 }

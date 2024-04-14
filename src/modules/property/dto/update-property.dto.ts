@@ -1,5 +1,5 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsNotEmpty, IsEnum } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, IsNotEmpty, IsEnum, IsArray } from 'class-validator';
 import { PropertyType } from '../enums/property-type.enum';
 
 export class UpdatePropertyDto {
@@ -42,4 +42,14 @@ export class UpdatePropertyDto {
   @IsOptional()
   @IsString()
   contactPhone?: string;
+
+  @ApiProperty()
+  @IsArray()
+  @IsOptional()
+  treatments?: number[]
+
+  @ApiProperty()
+  @IsArray()
+  @IsOptional()
+  services?: number[]
 }

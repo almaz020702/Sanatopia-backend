@@ -75,6 +75,8 @@ model Property {
   contactName        String               @db.VarChar()
   contactPhone       String               @db.VarChar()
   status             PropertyStatus       @default(PENDING)
+  createdAt          DateTime?            @default(now())
+  updatedAt          DateTime?            @updatedAt
   owner              User                 @relation(fields: [ownerId], references: [id])
   city               City                 @relation(fields: [cityId], references: [id])
   rooms              Room[]
