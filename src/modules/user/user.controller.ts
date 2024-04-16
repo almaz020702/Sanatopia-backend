@@ -6,6 +6,7 @@ import {
   Delete,
   Get,
   Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -17,6 +18,7 @@ import { UserService } from './user.service';
 import { UserProfileInfo } from './interfaces/user-profile-info.interface';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { AddToFavoritesDto } from './dto/add-to-favorites.dto';
 
 @ApiTags('User Profile Management')
 @Controller('user')
@@ -62,5 +64,26 @@ export class UserController {
   @Delete('/profile')
   async deleteUser(@UserId() userId: number): Promise<{ message: string }> {
     return this.userService.deleteUser(userId);
+  }
+
+  @ApiOperation({ summary: 'Add Property to Favorites' })
+  @ApiBody({})
+  @UseGuards(AuthGuard)
+  @Roles('USER')
+  @Post('add-to-favorites')
+  async addToFavorites(
+    @UserId() userId: number,
+    @Body() favoritesData: AddToFavoritesDto,
+  ) {
+    return this.userService.addToFavorites(userId, favoritesData.propertyId);
+  }
+
+  @ApiOperation({ summary: 'Get Favorite Properties' })
+  @ApiBody({})
+  @UseGuards(AuthGuard)
+  @Roles('USER')
+  @Get('favorites')
+  async getFavoriteProperties(@UserId() userId: number) {
+    return this.userService.getFavoriteProperties(userId);
   }
 }

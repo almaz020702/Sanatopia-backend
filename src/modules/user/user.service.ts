@@ -142,4 +142,25 @@ export class UserService {
     });
     return { message: 'User was successfully deleted' };
   }
+
+  async addToFavorites(userId: number, propertyId: number) {
+    const favorite = this.prismaService.favorite.create({
+      data: { userId, propertyId },
+    });
+
+    return favorite;
+  }
+
+  async getFavoriteProperties(userId: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      include: { Favorite: { include: { property: true } } },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return user.Favorite.map((favorite) => favorite.property);
+  }
 }

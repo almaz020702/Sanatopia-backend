@@ -152,8 +152,6 @@ export class OwnerController {
     );
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles('OWNER')
   @Get(':propertyId/room-types')
   async getRoomTypes(
     @Param('propertyId') propertyId: number,
