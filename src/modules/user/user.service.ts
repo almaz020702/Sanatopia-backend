@@ -142,4 +142,46 @@ export class UserService {
     });
     return { message: 'User was successfully deleted' };
   }
+
+  async addToFavorites(userId: number, propertyId: number) {
+    const favorite = this.prismaService.favorite.create({
+      data: { userId, propertyId },
+    });
+
+    return favorite;
+  }
+
+  async getFavoriteProperties(userId: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      include: { Favorite: { include: { property: true } } },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return user.Favorite.map((favorite) => favorite.property);
+  }
+
+  async deleteFromFavorites(userId: number, propertyId: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      include: { Favorite: true },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const favorite = user.Favorite.find((fav) => fav.propertyId === propertyId);
+    if (!favorite) {
+      throw new NotFoundException('Favorite property not found for the user');
+    }
+
+    await this.prismaService.favorite.delete({
+      where: { id: favorite.id },
+    });
+
+    return { message: 'Favorite property deleted successfully' };
+  }
 }

@@ -287,7 +287,7 @@ export class PropertyService {
         roomTypes: true,
         propertyServices: { select: { service: true } },
         propertyTreatments: { select: { treatment: true } },
-        propertyPhotos: { select: { photo: { select: { url: true } } } },
+        propertyPhotos: { select: { photo: { select: { id: true } } } },
         city: { select: { name: true } },
         owner: { select: { firstName: true, lastName: true, email: true } },
       },
