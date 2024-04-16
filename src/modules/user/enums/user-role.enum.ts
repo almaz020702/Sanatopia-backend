@@ -1,6 +1,6 @@
 export enum UserRoleType {
-  ADMIN = 'admin',
-  PROPERTY_OWNER = 'propertyOwner',
-  CLIENT = 'client',
-  PROPERTYT_STAFF = 'propertyStaff',
+  ADMIN = 'ADMIN',
+  PROPERTY_OWNER = 'OWNER',
+  CLIENT = 'USER',
+  PROPERTYT_STAFF = 'PROPERTY_STAFF',
 }
