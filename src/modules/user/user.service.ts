@@ -163,4 +163,25 @@ export class UserService {
 
     return user.Favorite.map((favorite) => favorite.property);
   }
+
+  async deleteFromFavorites(userId: number, propertyId: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      include: { Favorite: true },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const favorite = user.Favorite.find((fav) => fav.propertyId === propertyId);
+    if (!favorite) {
+      throw new NotFoundException('Favorite property not found for the user');
+    }
+
+    await this.prismaService.favorite.delete({
+      where: { id: favorite.id },
+    });
+
+    return { message: 'Favorite property deleted successfully' };
+  }
 }

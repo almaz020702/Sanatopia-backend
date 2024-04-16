@@ -86,4 +86,16 @@ export class UserController {
   async getFavoriteProperties(@UserId() userId: number) {
     return this.userService.getFavoriteProperties(userId);
   }
+
+  @ApiOperation({ summary: 'Delete Property from Favorites' })
+  @ApiBody({})
+  @UseGuards(AuthGuard)
+  @Roles('USER')
+  @Delete('favorites')
+  async deletePropertyFromFavorites(
+    @UserId() userId: number,
+    @Body() deleteData: AddToFavoritesDto,
+  ) {
+    return this.userService.deleteFromFavorites(userId, deleteData.propertyId);
+  }
 }
