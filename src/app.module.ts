@@ -4,6 +4,8 @@ import {
   ValidationError,
   ValidationPipe,
 } from '@nestjs/common';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { APP_PIPE } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -36,6 +38,10 @@ import { TreatmentModule } from './modules/treatment/treatment.module';
     PhotoModule,
     ServiceModule,
     TreatmentModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'uploads'),
+      serveRoot: '/uploads/',
+    }),
   ],
   controllers: [AppController],
   providers: [

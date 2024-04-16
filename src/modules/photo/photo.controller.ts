@@ -1,12 +1,16 @@
+/* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/indent */
 import {
   Controller,
+  Get,
   Param,
   Post,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 import { PhotoService } from './photo.service';
 
 @Controller('photo')
@@ -22,12 +26,24 @@ export class PhotoController {
     return this.photoService.uploadPhoto(propertyId, file);
   }
 
-  @Post('/room-type/:propertyId')
+  @Post('/room-type/:roomTypeId')
   @UseInterceptors(FileInterceptor('file'))
   async uploadRoomTypePhoto(
     @UploadedFile() file: Express.Multer.File,
-    @Param('propertyId') roomTypeId: number,
+    @Param('roomTypeId') roomTypeId: number,
   ) {
     return this.photoService.uploadRoomTypePhotos(roomTypeId, file);
+  }
+
+  @Get('/:photoId')
+  async getPhotoById(@Param('photoId') photoId: number, @Res() res: Response) {
+    const photoData = await this.photoService.getPhotoById(photoId);
+
+    if (!photoData) {
+      return res.status(404).send('Photo not found');
+    }
+
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.send(photoData);
   }
 }

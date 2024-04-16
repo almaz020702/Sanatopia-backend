@@ -46,7 +46,7 @@ export class PhotoService {
 
     const createdPhoto = await this.prismaService.photo.create({
       data: {
-        url: `/uploads/${fileName}`,
+        url: `uploads/${fileName}`,
       },
     });
 
@@ -98,7 +98,7 @@ export class PhotoService {
 
     const createdPhoto = await this.prismaService.photo.create({
       data: {
-        url: `/uploads/${fileName}`,
+        url: `uploads/${fileName}`,
       },
     });
 
@@ -114,5 +114,29 @@ export class PhotoService {
       roomTypeId,
       message: 'Photo uploaded successfully',
     };
+  }
+
+  async getPhotoById(photoId: number) {
+    const photoName = await this.prismaService.photo.findUnique({
+      where: { id: photoId },
+    });
+
+    const filePath = path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      photoName.url,
+    );
+
+    console.log(filePath);
+
+    try {
+      const photoData = fs.readFileSync(filePath);
+      return photoData;
+    } catch (error) {
+      throw new NotFoundException('Photo not found');
+    }
   }
 }
