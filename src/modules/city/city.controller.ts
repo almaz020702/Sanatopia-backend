@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger'; // Import Swagger decorators
+import { ApiTags, ApiOperation } from '@nestjs/swagger'; // Import Swagger decorators
 import { CityService } from './city.service';
 import { City } from './interfaces/city.interface';
 
@@ -12,10 +12,6 @@ export class CityController {
   @ApiOperation({
     summary: 'Get all cities',
     description: 'Retrieve a list of all cities.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'List of cities returned successfully.',
   })
   async getCities(): Promise<City[]> {
     return this.cityService.getCities();
