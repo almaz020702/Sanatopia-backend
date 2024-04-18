@@ -32,6 +32,8 @@ model Favorite {
   propertyId Int
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([userId, propertyId])
 }
 
 model Role {

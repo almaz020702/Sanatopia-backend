@@ -7,6 +7,7 @@ import {
   Get,
   Patch,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -69,7 +70,6 @@ export class UserController {
   @ApiOperation({ summary: 'Add Property to Favorites' })
   @ApiBody({})
   @UseGuards(AuthGuard)
-  @Roles('USER')
   @Post('add-to-favorites')
   async addToFavorites(
     @UserId() userId: number,
@@ -81,7 +81,6 @@ export class UserController {
   @ApiOperation({ summary: 'Get Favorite Properties' })
   @ApiBody({})
   @UseGuards(AuthGuard)
-  @Roles('USER')
   @Get('favorites')
   async getFavoriteProperties(@UserId() userId: number) {
     return this.userService.getFavoriteProperties(userId);
@@ -90,12 +89,13 @@ export class UserController {
   @ApiOperation({ summary: 'Delete Property from Favorites' })
   @ApiBody({})
   @UseGuards(AuthGuard)
-  @Roles('USER')
-  @Delete('favorites')
+  @Put('favorites')
   async deletePropertyFromFavorites(
     @UserId() userId: number,
     @Body() deleteData: AddToFavoritesDto,
   ) {
+    console.log(userId);
+
     return this.userService.deleteFromFavorites(userId, deleteData.propertyId);
   }
 }

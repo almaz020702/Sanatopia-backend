@@ -116,7 +116,7 @@ export class PhotoService {
     };
   }
 
-  async getPhotoById(photoId: number) {
+  async getPhotoById(photoId: number): Promise<Buffer> {
     const photoName = await this.prismaService.photo.findUnique({
       where: { id: photoId },
     });
@@ -130,13 +130,35 @@ export class PhotoService {
       photoName.url,
     );
 
-    console.log(filePath);
-
     try {
       const photoData = fs.readFileSync(filePath);
       return photoData;
     } catch (error) {
       throw new NotFoundException('Photo not found');
     }
+  }
+
+  async deletePhoto(photoId: number) {
+    const photo = await this.prismaService.photo.findUnique({
+      where: { id: photoId },
+    });
+
+    if (!photo) {
+      throw new NotFoundException('Photo not found');
+    }
+
+    const filePath = path.join(__dirname, '..', '..', '..', '..', photo.url);
+
+    try {
+      fs.unlinkSync(filePath);
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to delete photo file');
+    }
+
+    await this.prismaService.photo.delete({
+      where: { id: photoId },
+    });
+
+    return { message: 'Photo deleted successfully' };
   }
 }

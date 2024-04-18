@@ -54,7 +54,9 @@ export class OwnerService {
     const property = await this.prismaService.property.findUnique({
       where: { id },
       include: {
-        roomTypes: true,
+        roomTypes: {
+          include: { roomTypePhotos: { include: { photo: true } } },
+        },
         owner: true,
         propertyServices: { select: { service: true } },
         propertyTreatments: { select: { treatment: true } },

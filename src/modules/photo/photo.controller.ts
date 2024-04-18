@@ -2,7 +2,10 @@
 /* eslint-disable @typescript-eslint/indent */
 import {
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Res,
@@ -52,5 +55,14 @@ export class PhotoController {
 
     res.setHeader('Content-Type', 'image/jpeg');
     res.send(photoData);
+  }
+
+  @ApiOperation({ summary: 'Delete Photo by ID' })
+  @Delete(':photoId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deletePhoto(
+    @Param('photoId') photoId: number,
+  ): Promise<{ message: string }> {
+    return this.photoService.deletePhoto(photoId);
   }
 }

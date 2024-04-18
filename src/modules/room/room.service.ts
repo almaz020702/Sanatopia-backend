@@ -165,7 +165,10 @@ export class RoomService {
       where: { id: propertyId },
       include: {
         roomTypes: {
-          include: { roomTypeFacilities: { select: { facility: true } } },
+          include: {
+            roomTypeFacilities: { select: { facility: true } },
+            roomTypePhotos: { select: { photoId: true } },
+          },
         },
       },
     });

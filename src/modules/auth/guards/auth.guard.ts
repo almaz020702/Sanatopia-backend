@@ -20,6 +20,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       const token = req.cookies.accessToken;
+
       if (!token) {
         throw new UnauthorizedException({
           message: 'User is not authorized',

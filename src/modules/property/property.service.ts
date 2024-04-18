@@ -91,6 +91,7 @@ export class PropertyService {
       include: {
         roomTypes: { select: { pricePerDay: true } },
         propertyPhotos: { select: { photo: { select: { id: true } } } },
+        city: true,
       },
     });
 
@@ -292,11 +293,13 @@ export class PropertyService {
     const property = await this.prismaService.property.findUnique({
       where: { id: propertyId },
       include: {
-        roomTypes: true,
+        roomTypes: {
+          include: { roomTypePhotos: { include: { photo: true } } },
+        },
         propertyServices: { select: { service: true } },
         propertyTreatments: { select: { treatment: true } },
         propertyPhotos: { select: { photo: { select: { id: true } } } },
-        city: { select: { name: true } },
+        city: true,
         owner: { select: { firstName: true, lastName: true, email: true } },
       },
     });
