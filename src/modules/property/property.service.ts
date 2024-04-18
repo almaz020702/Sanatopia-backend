@@ -91,6 +91,7 @@ export class PropertyService {
       include: {
         roomTypes: { select: { pricePerDay: true } },
         propertyPhotos: { select: { photo: { select: { id: true } } } },
+        city: true,
       },
     });
 
@@ -296,7 +297,7 @@ export class PropertyService {
         propertyServices: { select: { service: true } },
         propertyTreatments: { select: { treatment: true } },
         propertyPhotos: { select: { photo: { select: { id: true } } } },
-        city: { select: { name: true } },
+        city: true,
         owner: { select: { firstName: true, lastName: true, email: true } },
       },
     });

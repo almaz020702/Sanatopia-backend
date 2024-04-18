@@ -144,7 +144,18 @@ export class UserService {
   }
 
   async addToFavorites(userId: number, propertyId: number) {
-    const favorite = this.prismaService.favorite.create({
+    const existingFavorite = await this.prismaService.favorite.findFirst({
+      where: {
+        userId,
+        propertyId,
+      },
+    });
+
+    if (existingFavorite) {
+      throw new Error("This property is already in the user's favorites list");
+    }
+
+    const favorite = await this.prismaService.favorite.create({
       data: { userId, propertyId },
     });
 
