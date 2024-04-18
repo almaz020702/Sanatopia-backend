@@ -90,7 +90,7 @@ export class PropertyService {
       orderBy,
       include: {
         roomTypes: { select: { pricePerDay: true } },
-        propertyPhotos: { select: { photo: { select: { url: true } } } },
+        propertyPhotos: { select: { photo: { select: { id: true } } } },
       },
     });
 
@@ -192,6 +192,10 @@ export class PropertyService {
     const dataToUpdate: any = { ...rest };
 
     if (services !== undefined) {
+      await this.prismaService.propertyServices.deleteMany({
+        where: { propertyId: property.id },
+      });
+
       dataToUpdate.propertyServices = {
         createMany: {
           data: services.map((serviceId) => ({
@@ -203,6 +207,10 @@ export class PropertyService {
     }
 
     if (treatments !== undefined) {
+      await this.prismaService.propertyTreatments.deleteMany({
+        where: { propertyId: property.id },
+      });
+
       dataToUpdate.propertyTreatments = {
         createMany: {
           data: treatments.map((treatmentId) => ({

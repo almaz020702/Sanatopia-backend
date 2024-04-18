@@ -51,7 +51,7 @@ export class OwnerController {
     private readonly bookingService: BookingService,
   ) {}
 
-  @ApiOperation({ summary: 'owner registration' })
+  @ApiOperation({ summary: 'Owner registration' })
   @Post('/registration')
   async registration(
     @Res({ passthrough: true }) res: Response,
@@ -62,6 +62,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Get properties owned by the user' })
   @Get('/properties')
   async getOwnerProperties(@UserId() userId: number): Promise<Property[]> {
     return this.ownerService.getOwnerProperties(userId);
@@ -69,6 +70,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Get property details by ID' })
   @Get('/properties/:id')
   async getPropertyById(
     @UserId() userId: number,
@@ -79,6 +81,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Update property details' })
   @Put('/properties/:id')
   async updateProperty(
     @UserId() userId: number,
@@ -90,6 +93,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Delete property' })
   @Delete('/properties/:id')
   async deleteProperty(
     @UserId() userId: number,
@@ -100,6 +104,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Get rooms of a property' })
   @Get('/:propertyId/rooms')
   async getPropertyRooms(
     @UserId() userId: number,
@@ -115,6 +120,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Add a room to a property' })
   @Post('/:propertyId/rooms')
   async addRoom(
     @UserId() userId: number,
@@ -126,6 +132,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Get room details by ID' })
   @Get(':propertyId/rooms/:roomId')
   async getPropertyRoomDetails(
     @Param('propertyId') propertyId: number,
@@ -137,6 +144,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Update room type details' })
   @Put(':propertyId/room-types/:roomTypeId')
   async updateRoomType(
     @Param('propertyId') propertyId: number,
@@ -152,6 +160,7 @@ export class OwnerController {
     );
   }
 
+  @ApiOperation({ summary: 'Get room types of a property' })
   @Get(':propertyId/room-types')
   async getRoomTypes(
     @Param('propertyId') propertyId: number,
@@ -161,6 +170,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Add a room type to a property' })
   @Post(':propertyId/room-types')
   async addRoomType(
     @Body() roomTypeData: CreateRoomTypeDto,
@@ -170,6 +180,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Delete a room from a property' })
   @Delete(':propertyId/rooms/:roomId')
   async deleteRoom(
     @Param('propertyId') propertyId: number,
@@ -181,6 +192,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Delete a room type from a property' })
   @Delete(':propertyId/room-types/:roomTypeId')
   async deleteRoomType(
     @Param('propertyId') propertyId: number,
@@ -192,6 +204,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Get bookings of the owner' })
   @Get('/bookings')
   async getOwnerBookings(@UserId() ownerId: number): Promise<Booking[]> {
     return this.ownerService.getOwnerBookings(ownerId);
@@ -199,6 +212,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Get booking details by ID' })
   @Get('/bookings/:bookingId')
   async getBookingDetails(
     @Param('bookingId') bookingId: number,
@@ -208,6 +222,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Create a booking' })
   @Post('/bookings')
   async createBooking(
     @UserId() ownerId: number,
@@ -218,6 +233,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Update a booking' })
   @Post('/bookings/:bookingId')
   async updateBooking(
     @UserId() ownerId: number,
@@ -233,6 +249,7 @@ export class OwnerController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('OWNER')
+  @ApiOperation({ summary: 'Update booking status' })
   @Put('bookings/:bookingId/status')
   async updateBookingStatus(
     @UserId() ownerId: number,

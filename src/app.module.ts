@@ -21,6 +21,7 @@ import { CityModule } from './modules/city/city.module';
 import { PhotoModule } from './modules/photo/photo.module';
 import { ServiceModule } from './modules/service/service.module';
 import { TreatmentModule } from './modules/treatment/treatment.module';
+import { ChatGPTModule } from './modules/chat-gpt/chat-gpt.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { TreatmentModule } from './modules/treatment/treatment.module';
       rootPath: join(__dirname, '..', '..', 'uploads'),
       serveRoot: '/uploads/',
     }),
+    ChatGPTModule,
   ],
   controllers: [AppController],
   providers: [

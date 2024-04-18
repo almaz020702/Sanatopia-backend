@@ -77,7 +77,7 @@ export class AuthController {
     return this.emailVerificationService.activateAccount(activationToken);
   }
 
-  @ApiOperation({})
+  @ApiOperation({ summary: 'Sends Reset Password Email' })
   @Post('/reset-password')
   async sendResetPasswordEmail(
     @Body() userData: GetUserEmailDto,
@@ -85,7 +85,7 @@ export class AuthController {
     return this.authService.sendResetPasswordEmail(userData.email);
   }
 
-  @ApiOperation({})
+  @ApiOperation({ summary: 'Renders Reset Password Page' })
   @Get('reset-password/:token')
   async renderResetPasswordPage(
     @Param('token') token: string,
@@ -93,7 +93,7 @@ export class AuthController {
     return this.authService.renderResetPasswordPage(token);
   }
 
-  @ApiOperation({})
+  @ApiOperation({ summary: 'Request to Reset Password' })
   @Post('reset-password/:token')
   async resetPassword(
     @Param('token') token: string,

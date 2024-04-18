@@ -11,12 +11,16 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
+import { ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { PhotoService } from './photo.service';
 
+@ApiTags('Photo')
 @Controller('photo')
 export class PhotoController {
   constructor(private readonly photoService: PhotoService) {}
 
+  @ApiOperation({ summary: 'Upload photo for property' })
+  @ApiProperty({ type: 'file' })
   @Post('/:propertyId')
   @UseInterceptors(FileInterceptor('file'))
   async uploadPhoto(
@@ -26,6 +30,8 @@ export class PhotoController {
     return this.photoService.uploadPhoto(propertyId, file);
   }
 
+  @ApiOperation({ summary: 'Upload photo for room type' })
+  @ApiProperty({ type: 'file' })
   @Post('/room-type/:roomTypeId')
   @UseInterceptors(FileInterceptor('file'))
   async uploadRoomTypePhoto(
@@ -35,6 +41,7 @@ export class PhotoController {
     return this.photoService.uploadRoomTypePhotos(roomTypeId, file);
   }
 
+  @ApiOperation({ summary: 'Get photo by ID' })
   @Get('/:photoId')
   async getPhotoById(@Param('photoId') photoId: number, @Res() res: Response) {
     const photoData = await this.photoService.getPhotoById(photoId);
