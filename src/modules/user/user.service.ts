@@ -180,6 +180,8 @@ export class UserService {
       where: { id: userId },
       include: { Favorite: true },
     });
+    console.log(user);
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
