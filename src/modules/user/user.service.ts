@@ -165,7 +165,19 @@ export class UserService {
   async getFavoriteProperties(userId: number) {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },
-      include: { Favorite: { include: { property: true } } },
+      include: {
+        Favorite: {
+          include: {
+            property: {
+              include: {
+                roomTypes: { select: { pricePerDay: true } },
+                propertyPhotos: { select: { photo: { select: { id: true } } } },
+                city: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!user) {
