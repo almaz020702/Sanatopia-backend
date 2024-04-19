@@ -121,6 +121,10 @@ export class PhotoService {
       where: { id: photoId },
     });
 
+    if (!photoName) {
+      throw new NotFoundException('Photo was not found');
+    }
+
     const filePath = path.join(
       __dirname,
       '..',
