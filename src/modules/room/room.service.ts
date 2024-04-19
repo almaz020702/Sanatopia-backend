@@ -152,9 +152,27 @@ export class RoomService {
       );
     }
 
+    const { facilityIds, ...rest } = updateRoomTypeDto;
+
+    const dataToUpdate: any = { ...rest };
+
+    if (facilityIds !== undefined) {
+      await this.prismaService.roomTypeFacility.deleteMany({
+        where: { roomTypeId: roomType.id },
+      });
+
+      dataToUpdate.roomTypeFacilities = {
+        createMany: {
+          data: facilityIds.map((facilityId) => ({
+            facilityId,
+          })),
+        },
+      };
+    }
+
     const updatedRoomType = await this.prismaService.roomType.update({
       where: { id: roomTypeId },
-      data: updateRoomTypeDto,
+      data: dataToUpdate,
     });
 
     return updatedRoomType;
