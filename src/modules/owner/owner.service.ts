@@ -11,7 +11,6 @@ import { AuthService } from '../auth/auth.service';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { AuthResponse } from '../auth/interfaces/auth-response.interface';
 import { Property } from '../property/interfaces/property.interface';
-import { Booking } from '../booking/interfaces/booking.interface';
 
 @Injectable()
 export class OwnerService {
@@ -77,9 +76,13 @@ export class OwnerService {
     return property;
   }
 
-  async getOwnerBookings(ownerId: number): Promise<Booking[]> {
+  async getOwnerBookings(ownerId: number) {
     const bookings = await this.prismaService.booking.findMany({
       where: { room: { property: { ownerId } } },
+      include: {
+        user: true,
+        room: { select: { roomType: { select: { capacity: true } } } },
+      },
     });
 
     if (!bookings || bookings.length === 0) {

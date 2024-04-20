@@ -267,9 +267,21 @@ export class RoomService {
       where: { id: roomTypeId },
       include: {
         roomTypeFacilities: { select: { facility: true } },
+        roomTypePhotos: { select: { photo: { select: { id: true } } } },
       },
     });
 
     return roomType;
+  }
+
+  async getAllRoomTypes() {
+    const roomTypes = await this.prismaService.roomType.findMany({
+      include: {
+        roomTypeFacilities: { select: { facility: true } },
+        roomTypePhotos: { select: { photo: { select: { id: true } } } },
+      },
+    });
+
+    return roomTypes;
   }
 }

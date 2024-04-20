@@ -206,7 +206,7 @@ export class OwnerController {
   @Roles('OWNER')
   @ApiOperation({ summary: 'Get bookings of the owner' })
   @Get('/bookings')
-  async getOwnerBookings(@UserId() ownerId: number): Promise<Booking[]> {
+  async getOwnerBookings(@UserId() ownerId: number) {
     return this.ownerService.getOwnerBookings(ownerId);
   }
 
