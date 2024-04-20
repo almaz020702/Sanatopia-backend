@@ -33,4 +33,10 @@ export class RoomController {
   ): Promise<RoomType> {
     return this.roomService.getRoomTypeById(roomTypeId);
   }
+
+  @ApiOperation({ summary: 'Get all room types' })
+  @Get('/room-types')
+  async getAllRoomTypes() {
+    return this.roomService.getAllRoomTypes();
+  }
 }

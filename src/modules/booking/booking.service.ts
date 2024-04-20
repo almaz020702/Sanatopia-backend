@@ -125,6 +125,29 @@ export class BookingService {
   async getBookingsByUserId(userId: number): Promise<GetBookingResponse[]> {
     const bookings = await this.prismaService.booking.findMany({
       where: { userId },
+      include: {
+        room: {
+          include: {
+            property: {
+              select: {
+                name: true,
+                description: true,
+                rating: true,
+                address: true,
+                city: true,
+                contactName: true,
+                contactPhone: true,
+                postalCode: true,
+                propertyType: true,
+                propertyPhotos: {
+                  select: { photo: { select: { id: true } } },
+                },
+              },
+            },
+            roomType: { select: { name: true } },
+          },
+        },
+      },
     });
 
     if (!bookings || bookings.length === 0) {

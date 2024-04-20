@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsNumber } from 'class-validator';
+import { IsOptional, IsString, IsNumber, IsArray } from 'class-validator';
 
 export class UpdateRoomTypeDto {
   @ApiProperty({ description: 'Name of the room type', required: false })
@@ -12,17 +12,26 @@ export class UpdateRoomTypeDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ description: 'Surface area of the room type', required: false })
+  @ApiProperty({
+    description: 'Surface area of the room type',
+    required: false,
+  })
   @IsOptional()
   @IsNumber()
   surfaceArea?: number;
 
-  @ApiProperty({ description: 'Price per day of the room type', required: false })
+  @ApiProperty({
+    description: 'Price per day of the room type',
+    required: false,
+  })
   @IsOptional()
   @IsNumber()
   pricePerDay?: number;
 
-  @ApiProperty({ description: 'ID of the property associated with the room type', required: false })
+  @ApiProperty({
+    description: 'ID of the property associated with the room type',
+    required: false,
+  })
   @IsOptional()
   @IsNumber()
   propertyId?: number;
@@ -31,4 +40,10 @@ export class UpdateRoomTypeDto {
   @IsOptional()
   @IsNumber()
   capacity?: number;
+
+  @ApiProperty({ type: [Number] })
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  facilityIds: number[];
 }

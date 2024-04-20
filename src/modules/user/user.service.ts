@@ -1,3 +1,5 @@
+/* eslint-disable operator-linebreak */
+/* eslint-disable @typescript-eslint/indent */
 import {
   BadRequestException,
   Injectable,
@@ -184,7 +186,27 @@ export class UserService {
       throw new Error('User not found');
     }
 
-    return user.Favorite.map((favorite) => favorite.property);
+    const favoriteProperties = user.Favorite.map(
+      (favorite) => favorite.property,
+    );
+
+    const favoritePropertiesWithMinPricePerDay = favoriteProperties.map(
+      (property) => {
+        const minPricePerDay =
+          property.roomTypes.length > 0
+            ? Math.min(
+                ...property.roomTypes.map((roomType) => roomType.pricePerDay),
+              )
+            : null;
+
+        return {
+          ...property,
+          minPricePerDay,
+        };
+      },
+    );
+
+    return favoritePropertiesWithMinPricePerDay;
   }
 
   async deleteFromFavorites(userId: number, propertyId: number) {

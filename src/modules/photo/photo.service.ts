@@ -122,6 +122,21 @@ export class PhotoService {
     });
 
     if (!photoName) {
+      const noPhotoName = 'uploads/no-photo-default.jpg';
+      const filePath = path.join(
+        __dirname,
+        '..',
+        '..',
+        '..',
+        '..',
+        noPhotoName,
+      );
+      try {
+        const photoData = fs.readFileSync(filePath);
+        return photoData;
+      } catch (error) {
+        throw new NotFoundException('Photo not found');
+      }
       throw new NotFoundException('Photo was not found');
     }
 
